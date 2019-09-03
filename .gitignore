@@ -300,4 +300,7 @@ $RECYCLE.BIN/
 # Log dir
 /logs/
 
+# Config dir (R)
+config/
+
 

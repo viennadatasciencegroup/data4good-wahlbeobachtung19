@@ -12,20 +12,23 @@ Project Organization
     │
     ├── cache              <- Cached R data.
     │
+    ├── config             <- R project configuration settings.
+    │   └── global.dcf     <- Global settings in DCF format.
+    │
     ├── data
     │   ├── external       <- Data from third party sources.
     │   ├── interim        <- Intermediate data that has been transformed.
     │   ├── processed      <- The final, canonical data sets for modeling.
     │   └── raw            <- The original, immutable data dump.
     │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
+    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details.
     │
     ├── environment.yml    <- Conda environment file for reproducint the analysis environment.
     │                         Generated with `env export > environment.yml`.
     │
     ├── logs               <- Stores log files.
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    ├── models             <- Trained and serialized models, model predictions, or model summaries.
     │
     ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
     │                         the creators initials, and a short `-` delimited description, e.g.
@@ -37,25 +40,25 @@ Project Organization
     │   └── figures        <- Generated graphics and figures to be used in reporting
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
+    │                         generated with `pip freeze > requirements.txt`.
     │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
+    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported.
     │
     ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
+    │   ├── __init__.py    <- Makes src a Python module.
     │   │
-    │   ├── data           <- Scripts to download or generate data
+    │   ├── data           <- Scripts to download or generate data.
     │   │   └── make_dataset.py
     │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
+    │   ├── features       <- Scripts to turn raw data into features for modeling.
     │   │   └── build_features.py
     │   │
     │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
+    │   │   │                 predictions.
     │   │   ├── predict_model.py
     │   │   └── train_model.py
     │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
+    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations.
     │       └── visualize.py
     │
     └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
