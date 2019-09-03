@@ -5,6 +5,12 @@ data4good-wahlbeobachtung19
 
 Monitor and analyze Social Media campaigns of major political actors during national elections 2019 in Austria.
 
+
+### Description
+
+tbd
+
+
 Project Organization
 ------------
 
@@ -59,19 +65,22 @@ Project Organization
     ├── src                <- Source code for use in this project.
     │   ├── __init__.py    <- Makes src a Python module.
     │   │
-    │   ├── data           <- Scripts to download or generate data.
+    │   ├── data           <- Scripts to download, collect, persist or generate data.
     │   │   └── make_dataset.py
     │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling.
-    │   │   └── build_features.py
+    │   ├── nlp            <- Scripts to clean and preprocess raw text data (NLP pipeline).
     │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions.
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
+    │   ├── analytics      <- Scripts to perform result oriented text analytics.
     │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations.
-    │       └── visualize.py
+    │   ├── topics         <- Scripts to perform topic modeling.
+    │   │
+    │   ├── sentiment      <- Scripts to perform sentiment analysis.
+    │   │
+    │   ├── visualization  <- Scripts to create exploratory and results oriented visualizations.
+    │   │
+    │   └── test           <- Test scripts.
+    │       └── 1.R
+    │       └── test_template.py
     │
     ├── test_environment.py <- Python version testscript.
     │
