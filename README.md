@@ -70,6 +70,19 @@ Project Organization
     └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
 
 
+## Contributors
+
+* [Rania Wazir](https://github.com/rrania4r)
+* [Thomas Treml](https://github.com/datadonK23)
+* [Georg Heiler](https://github.com/geoHeil)
+* tbd
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+
 --------
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
