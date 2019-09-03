@@ -28,6 +28,10 @@ Project Organization
     ├── environment.yml    <- Conda environment file for reproducint the analysis environment.
     │                         Generated with `env export > environment.yml`.
     │
+    ├── lib                <- R helper functions.
+    │   ├── globals.R      <- Project specific functions.
+    │   └── helpers.R      <- Helper functions.
+    │
     ├── logs               <- Stores log files.
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries.
