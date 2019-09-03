@@ -28,11 +28,17 @@ Project Organization
     ├── environment.yml    <- Conda environment file for reproducint the analysis environment.
     │                         Generated with `env export > environment.yml`.
     │
+    ├── ETHICS.md          <-Ethics checklist.
+    │
     ├── lib                <- R helper functions.
     │   ├── globals.R      <- Project specific functions.
     │   └── helpers.R      <- Helper functions.
     │
+    ├── LICENSE            <- MIT License.
+    │
     ├── logs               <- Stores log files.
+    │
+    ├── Makefile           <- Makefile.
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries.
     │
@@ -66,6 +72,8 @@ Project Organization
     │   │
     │   └── visualization  <- Scripts to create exploratory and results oriented visualizations.
     │       └── visualize.py
+    │
+    ├── test_environment.py <- Python version testscript.
     │
     └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
 
