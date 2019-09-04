@@ -40,11 +40,7 @@ Project Organization
     │   ├── globals.R      <- Project specific functions.
     │   └── helpers.R      <- Helper functions.
     │
-    ├── LICENSE            <- MIT License.
-    │
     ├── logs               <- Stores log files.
-    │
-    ├── Makefile           <- Makefile.
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries.
     │
