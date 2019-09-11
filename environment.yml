@@ -146,5 +146,4 @@ dependencies:
     - pyyaml==5.1.2
     - soupsieve==1.9.3
     - xerox==0.4.1
-prefix: /home/datadonk23/anaconda3/envs/WBNRW19
 
