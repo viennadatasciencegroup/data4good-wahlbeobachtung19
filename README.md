@@ -64,6 +64,8 @@ Project Organization
     │   ├── data           <- Scripts to download, collect, persist or generate data.
     │   │   └── make_dataset.py
     │   │
+    |   ├── comment_evaluation  <- Shiny R script for comment evaluation app
+    |   |
     │   ├── nlp            <- Scripts to clean and preprocess raw text data (NLP pipeline).
     │   │
     │   ├── analytics      <- Scripts to perform result oriented text analytics.
