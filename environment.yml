@@ -20,9 +20,9 @@ dependencies:
   - bleach=3.1.0=py37_0
   - bwidget=1.9.11=1
   - bzip2=1.0.8=h7b6447c_0
-  - ca-certificates=2019.5.15=1
+  - ca-certificates=2019.8.28=0
   - cairo=1.14.12=h8948797_3
-  - certifi=2019.6.16=py37_1
+  - certifi=2019.9.11=py37_0
   - cffi=1.12.3=py37h2e261b9_0
   - chardet=3.0.4=py37_1003
   - cryptography=2.7=py37h1ba5d50_0
