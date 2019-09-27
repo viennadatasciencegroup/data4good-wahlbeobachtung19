@@ -8,6 +8,7 @@ Date: 25.09.19
 """
 
 import os, sys, logging
+from datetime import date, datetime, timezone
 logging.basicConfig(level=logging.INFO)
 
 import pandas as pd
@@ -44,10 +45,43 @@ def request(url, params=None):
         return response
 
 
-def scrape_ads(id):
+def results_within_window(response, window):
+    """ Filters ads which were delivered within time window.
+
+    :param response: response to Graph API request
+    :type response: requests.Response
+    :param window: inclusive boundaries of time window in which ad must be
+                   delivered. (from_date, until_date)
+    :type window: (datetime.date, datetime.date)
+    :return: list of ads, which were delivered in time window
+    """
+    relevant_results = []
+
+    for ad in response.json()["data"]:
+        ad_from = datetime.strptime(ad["ad_delivery_start_time"],
+                                    "%Y-%m-%dT%H:%M:%S%z")
+        ad_from_date = datetime.date(ad_from.astimezone(timezone.utc))
+        ad_to = datetime.strptime(ad["ad_delivery_stop_time"],
+                                  "%Y-%m-%dT%H:%M:%S%z")
+        ad_to_date = datetime.date(ad_to.astimezone(timezone.utc))
+
+        # Overlap in ranges: (StartA <= EndB) and (EndA >= StartB)
+        if (ad_from_date <= window[1]) and (ad_to_date >= window[0]):
+            relevant_results.append(ad)
+
+    return relevant_results
+
+
+def scrape_ads(id, name, window):
     """ Scrape ads from one source (specified by user ID).
 
     :param id: user ID
+    :type id: int
+    :param name: user name
+    :type name: str
+    :param window: inclusive boundaries of time window in which ad must be
+                   delivered. (from_date, until_date)
+    :type window: (datetime.date, datetime.date)
     :return: list of ad dicts
     """
     ads_archive_url = "https://graph.facebook.com/v4.0/ads_archive"
@@ -63,30 +97,27 @@ def scrape_ads(id):
               "limit": 25,
               "search_page_ids": id,
               "access_token": credentials.ad_lib_access_token}
+    relevant_ads = []
 
     # Inital request
     response = request(ads_archive_url,params)
-    response_json = response.json()
-    #FIXME check if in relevant timeframe
-    results = response_json["data"]
+    relevant_ads.extend(results_within_window(response, window))
 
     # Pagination requests
     last_page = False
     while not last_page:
         try:
-            if "next" in response_json["paging"].keys():
-                url = response_json["paging"]["next"]
+            if "next" in response.json()["paging"].keys():
+                url = response.json()["paging"]["next"]
                 response = request(url)
-                response_json = response.json()
-                if len(response_json["data"]) != 0:
-                    results.append(response_json["data"])
-                print(len(response_json["data"]))
+                if len(response.json()["data"]) != 0:
+                    relevant_ads.extend(results_within_window(response, window))
             else:
                 last_page = True
         except KeyError:
             last_page = True
 
-    return results
+    return relevant_ads
 
 
 if __name__ == "__main__":
@@ -97,7 +128,9 @@ if __name__ == "__main__":
     #FIXME loop through sources
     #for _, row in fanpages_df.iterrows():
     #    ads_data = fetch_ads(row.ID)
-    results = scrape_ads(fanpages_df.ID.head(1).values[0])
+    results = scrape_ads(fanpages_df.ID.head(1).values[0],
+                         fanpages_df.Name.head(1).values[0],
+                         (date(2019, 9, 8), date(2019, 9, 27)))
     print(len(results))
 
     scraped_data = pd.DataFrame(results, columns=[
@@ -105,11 +138,9 @@ if __name__ == "__main__":
         "ad_creative_link_description", "ad_creative_link_title",
         "ad_delivery_start_time", "ad_delivery_stop_time", "ad_snapshot_url",
         "currency", "demographic_distribution", "funding_entity",
-        "impressions", "page_id", "page_name", "region_distribution", "spend"])
-
-    for res in results:
-        print(len(res))
-        print(res)
+        "impressions", "page_id", "page_name", "region_distribution", "spend"
+    ])
 
     print(scraped_data.shape)
-    print(scraped_data.ad_delivery_stop_time)
+    #print(scraped_data.ad_delivery_start_time)
+    #print(scraped_data.ad_delivery_stop_time)
