@@ -36,17 +36,18 @@ def remove_columns(df):
 def clean_text(text):
     """ Util: Cleans text string.
     > Lowercase string
+    > Replace game scores with "GAME_SCORE" placeholder
     > Punctuation removal
-    > Replace numbers with "NUM" index
+    > Replace numbers with "NUM" placeholder
 
     :param text: raw text string
     :return: cleaned text string
     """
     lowercased = text.lower()
-    punct_removed = lowercased.translate(str.maketrans("", "",
-                                                       string.punctuation))
-    # FIXME lower quotation marks
-    num_replaced = re.sub(r"\b\d+\b", "NUM", punct_removed)
+    scores_removed = re.sub(r"(\d+) ?(-|:) ?(\d+)", "GAME_SCORE ", lowercased)
+    punctuations = string.punctuation + "„" + "”"
+    punct_removed = scores_removed.translate(str.maketrans("", "", punctuations))
+    num_replaced = re.sub(r"\b\d+\b", "NUM ", punct_removed)
 
     return num_replaced
 
