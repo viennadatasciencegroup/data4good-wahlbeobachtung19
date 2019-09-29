@@ -1,29 +1,29 @@
 #!/usr/bin/python
-""" clean_text_df
+""" preprocessing
 
-Generates a combined DF of FB & Twitter data. Cleans and tokenize the text of
-this DF.
+Combines DFs of raw Posts and Comments. Cleans and tokenizes text in
+resulting DF.
 
 Author: datadonk23
-Date: 24.09.19 
+Date: 29.09.19
 """
 
 import logging
 logging.basicConfig(level=logging.INFO)
 
 from nlp.datasets_io import load_data, dump_data
-from nlp.preprocess_dataset import preprocess_data
+from nlp.preprocess_dataset import clean_dataframe
 
 
 if __name__ == "__main__":
-    data_path = "/mnt/DATA/NRW2019 Dropbox/data 4good/CSVData/Archived"
-    #FIXME DB access
+    # FIXME DB access
+    data_path = "/mnt/DATA/NRW2019 Dropbox/data 4good/CSVData"
 
     logging.info("Load dataset")
     raw_data = load_data(data_path)
 
     logging.info("Preprocess dataset")
-    preprocessed_data = preprocess_data(raw_data)
+    preprocessed_data = clean_dataframe(raw_data)
 
     logging.info("Persist cleaned dataset")
     dump_data(preprocessed_data, data_path)
