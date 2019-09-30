@@ -25,13 +25,14 @@ def clean_text(text):
     :param text: raw text string
     :type text: str
     :return: cleaned text string
+    :rtype: str
     """
     lowercased = text.lower()
     scores_removed = re.sub(r"(\d+) ?(-|:) ?(\d+)", "GAME_SCORE ", lowercased)
     punctuations = string.punctuation + "„" + "”"
     punct_removed = scores_removed.translate(str.maketrans("", "",
                                                            punctuations))
-    num_replaced = re.sub(r"\b\d+\b", "NUM ", punct_removed)
+    num_replaced = re.sub(r"\b\d+\b", "NUM", punct_removed)
 
     return num_replaced
 
@@ -45,6 +46,7 @@ def clean_dataframe(df):
     :param df: raw DF
     :type df: pd.DataFrame
     :return: cleaned DF
+    :rtype: pd.DataFrame
     """
     # Remove rows w/o text
     data = df.dropna(subset=["text"], how="all").copy(deep=True)
