@@ -44,11 +44,11 @@ def request(url, params=None):
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
     except HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')
+        logging.critical(f'HTTP error occurred: {http_err}')
     except Exception as err:
-        print(f'Other error occurred: {err}')
+        logging.critical(f'Other error occurred: {err}')
     else:
-        print("Request successful")
+        logging.info("Request successful")
         return response
 
 
@@ -62,9 +62,11 @@ def results_within_window(response, window):
     :type window: (datetime.date, datetime.date)
     :return: list of ads, which were delivered in time window
     """
+    global missing_stop_accounts
     relevant_results = []
 
     for ad in response.json()["data"]:
+        ad_name = ad["page_name"]
         ad_from = datetime.strptime(ad["ad_delivery_start_time"],
                                     "%Y-%m-%dT%H:%M:%S%z")
         ad_from_date = datetime.date(ad_from.astimezone(timezone.utc))
@@ -76,6 +78,9 @@ def results_within_window(response, window):
         # ad ran. They ran until advertiser stops it or campaign budget is
         # spent. Both can't be determined from API responses.
         else:
+            if ad_name not in missing_stop_accounts:
+                missing_stop_accounts.append(ad_name)
+                logging.warning("Missing 'ad_delivery_stop_time'-field")
             ad_to_date = date.today()
 
         # Overlap in ranges: (StartA <= EndB) and (EndA >= StartB)
@@ -166,16 +171,22 @@ if __name__ == "__main__":
     info_path = "/mnt/DATA/NRW2019 Dropbox/data 4good/Info Lists"
     data_path = "/mnt/DATA/NRW2019 Dropbox/data 4good/CSVData/ads"
     results_fpath = os.path.join(data_path, "AdLibAll.csv")
+    missing_stop_accounts = []
 
     # Get sources list
     logging.info("Load Fanpages list")
-    fanpages_df = pd.read_csv(os.path.join(info_path, "Test_AdsList.csv"))
+    fanpages_df = pd.read_csv(os.path.join(info_path, "AdsListID.csv"))
 
     # Loop through sources list and scrape ads for each source
     for _, row in fanpages_df.iterrows():
         logging.info("Scrape ads from " + row.Name)
-        ads_data = scrape_ads(row.ID, row.Name,
+        ads_data = scrape_ads(row.userID, row.Name,
                               (date(2019, 9, 8), date(2019, 9, 29)), data_path)
+
+    logging.info("Count of accounts with missing 'ad_delivery_stop_time': " +
+                 str(len(missing_stop_accounts)))
+    logging.info("Accounts with missing 'ad_delivery_stop_time': " +
+                 "; ".join(missing_stop_accounts))
 
     # Merge all interim results in one DF of all scraped ads
     logging.info("Concatinating intermediate results")
