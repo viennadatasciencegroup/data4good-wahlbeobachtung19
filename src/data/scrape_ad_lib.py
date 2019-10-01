@@ -9,10 +9,13 @@ into a final result csv-file eventually.
 
 Constraint: Due to the nature of Ad Lib API, there's no way to determine how
 long an ad was delivered by FB, if the advertiser hasn't specified a stop
-date.
+date. For this case, a decision day must be specified. The script will than
+fetch ads only, which were started after this day until end of monitoring
+period day and a stop of delivery day is assumed on last day of monitoring
+period.
 
 Author: datadonk23
-Date: 25.09.19 
+Date: 01.10.19
 """
 
 import os, sys, logging, glob
@@ -34,6 +37,7 @@ def request(url, params=None):
     :param url: page URL
     :param params: parameters of request
     :return: response
+    :rtype: requests.Response
     """
     try:
         if params:
@@ -52,7 +56,7 @@ def request(url, params=None):
         return response
 
 
-def results_within_window(response, window):
+def results_within_window(response, window, non_stop_decision_date):
     """ Filters ads which were delivered within time window.
 
     :param response: response to Graph API request
@@ -60,7 +64,12 @@ def results_within_window(response, window):
     :param window: inclusive boundaries of time window in which ad must be
                    delivered. (from_date, until_date)
     :type window: (datetime.date, datetime.date)
+    :param non_stop_decision_date: ads which were started after this day,
+                                   will be fetched although stop field is not
+                                   specified
+    :type non_stop_decision_date: datetime.date
     :return: list of ads, which were delivered in time window
+    :rtype: list
     """
     global missing_stop_accounts
     relevant_results = []
@@ -70,18 +79,34 @@ def results_within_window(response, window):
         ad_from = datetime.strptime(ad["ad_delivery_start_time"],
                                     "%Y-%m-%dT%H:%M:%S%z")
         ad_from_date = datetime.date(ad_from.astimezone(timezone.utc))
+
         if "ad_delivery_stop_time" in ad.keys():
             ad_to = datetime.strptime(ad["ad_delivery_stop_time"],
                                       "%Y-%m-%dT%H:%M:%S%z")
             ad_to_date = datetime.date(ad_to.astimezone(timezone.utc))
         # ATTENTION if not specified, there's no way to determine how long the
-        # ad ran. They ran until advertiser stops it or campaign budget is
-        # spent. Both can't be determined from API responses.
+        # ad ran. They're running  until advertiser stops it or campaign
+        # budget is spent. Both can't be determined from API responses.
+        # Therefore we're using this policy, if 'ad_delivery_stop_time' is not
+        # specified:
+        #   * We are fetching only ads with a delivery start after
+        #     non_stop_decision_date (01.08.2019) until end of monitoring
+        #     period (29.09.2019) and assume deliverance has been stopped at
+        #     the end of monitoring period (= election day) as well.
         else:
+            # log fan page account which contains unreliable data
             if ad_name not in missing_stop_accounts:
                 missing_stop_accounts.append(ad_name)
                 logging.warning("Missing 'ad_delivery_stop_time'-field")
-            ad_to_date = date.today()
+
+            # implement workaround policy:
+            # check if delivery started before decision date
+            if ad_from_date < non_stop_decision_date:
+                # assumed to stop before decision day -> will not be fetched
+                ad_to_date = ad_from_date
+            else:
+                # assumed to stop on election day -> will be fetched
+                ad_to_date = window[1]
 
         # Overlap in ranges: (StartA <= EndB) and (EndA >= StartB)
         if (ad_from_date <= window[1]) and (ad_to_date >= window[0]):
@@ -90,7 +115,7 @@ def results_within_window(response, window):
     return relevant_results
 
 
-def scrape_ads(id, name, window, data_path):
+def scrape_ads(id, name, window, non_stop_decision_date, data_path):
     """ Scrape ads from one source (specified by user ID).
 
     :param id: user ID
@@ -100,9 +125,14 @@ def scrape_ads(id, name, window, data_path):
     :param window: inclusive boundaries of time window in which ad must be
                    delivered. (from_date, until_date)
     :type window: (datetime.date, datetime.date)
+    :param non_stop_decision_date: ads which were started after this day,
+                                   will be fetched although stop field is not
+                                   specified
+    :type non_stop_decision_date: datetime.date
     :param data_path: path of data folder
     :type data_path: str
-    :return: pd.DF of scraped ads
+    :return: DF of scraped ads
+    :rtype: pd.DataFrame
     """
     ads_archive_url = "https://graph.facebook.com/v4.0/ads_archive"
     fields = "ad_creation_time,ad_creative_body,ad_creative_link_caption," \
@@ -122,7 +152,8 @@ def scrape_ads(id, name, window, data_path):
 
     # Inital request
     response = request(ads_archive_url,params)
-    relevant_ads.extend(results_within_window(response, window))
+    relevant_ads.extend(results_within_window(response, window,
+                                              non_stop_decision_date))
 
     # Pagination requests
     last_page = False
@@ -132,7 +163,9 @@ def scrape_ads(id, name, window, data_path):
                 url = response.json()["paging"]["next"]
                 response = request(url)
                 if len(response.json()["data"]) != 0:
-                    relevant_ads.extend(results_within_window(response, window))
+                    filtered_ads = results_within_window(response, window,
+                                                         non_stop_decision_date)
+                    relevant_ads.extend(filtered_ads)
             else:
                 last_page = True
         except KeyError:
@@ -154,6 +187,7 @@ def combine_intermediate_results(data_path, results_fpath):
     :param results_fpath: filepath for final results
     :type results_fpath: str
     :return: DF of all scraped ads
+    :rtype: pd.DataFrame
     """
     interim_results = []
     interim_results_fpath = glob.glob(os.path.join(data_path, "*.csv"))
@@ -171,17 +205,23 @@ if __name__ == "__main__":
     info_path = "/mnt/DATA/NRW2019 Dropbox/data 4good/Info Lists"
     data_path = "/mnt/DATA/NRW2019 Dropbox/data 4good/CSVData/ads"
     results_fpath = os.path.join(data_path, "AdLibAll.csv")
+
+    monitoring_period_start = date(2019, 9, 8)
+    monitoring_period_stop = date(2019, 9, 29)
+    monitoring_window = (monitoring_period_start, monitoring_period_stop)
+
+    non_stop_decision_date = date(2019, 8, 1)
     missing_stop_accounts = []
 
     # Get sources list
-    logging.info("Load Fanpages list")
+    logging.info("Load FanPages list")
     fanpages_df = pd.read_csv(os.path.join(info_path, "AdsListID.csv"))
 
     # Loop through sources list and scrape ads for each source
     for _, row in fanpages_df.iterrows():
         logging.info("Scrape ads from " + row.Name)
-        ads_data = scrape_ads(row.userID, row.Name,
-                              (date(2019, 9, 8), date(2019, 9, 29)), data_path)
+        ads_data = scrape_ads(row.userID, row.Name, monitoring_window,
+                              non_stop_decision_date, data_path)
 
     logging.info("Count of accounts with missing 'ad_delivery_stop_time': " +
                  str(len(missing_stop_accounts)))
