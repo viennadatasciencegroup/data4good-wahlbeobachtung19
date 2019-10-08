@@ -15,7 +15,7 @@ period day and a stop of delivery day is assumed on last day of monitoring
 period.
 
 Author: datadonk23
-Date: 01.10.19
+Date: 08.10.19
 """
 
 import os, sys, logging, glob
@@ -104,6 +104,10 @@ def results_within_window(response, window, non_stop_decision_date):
             if ad_from_date < non_stop_decision_date:
                 # assumed to stop before decision day -> will not be fetched
                 ad_to_date = ad_from_date
+            # or delivery started after monitoring period
+            elif ad_from_date > window[1]:
+                # today as placeholder end date -> will not be fetched
+                ad_to_date = datetime.today()
             else:
                 # assumed to stop on election day -> will be fetched
                 ad_to_date = window[1]
@@ -171,12 +175,16 @@ def scrape_ads(id, name, window, non_stop_decision_date, data_path):
         except KeyError:
             last_page = True
 
-    # Make DF of relevant ads and persist it as intermediate result
+    # Make DF of relevant ads, clean snapshot URL (remove access token!) and
+    # persist it as intermediate result
     scraped_ads = pd.DataFrame(relevant_ads, columns=columns)
+    cleaned_ads = scraped_ads.copy()
+    cleaned_ads["ad_snapshot_url"] = scraped_ads["ad_snapshot_url"].apply(
+        lambda x: x[:x.rfind("&access_token=")])
     f_path = os.path.join(data_path, name.lower().replace(" ", "_") + ".csv")
-    scraped_ads.to_csv(f_path, index=False)
+    cleaned_ads.to_csv(f_path, index=False)
 
-    return scraped_ads
+    return cleaned_ads
 
 
 def combine_intermediate_results(data_path, results_fpath):
