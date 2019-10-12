@@ -13116,6 +13116,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>Prototype stopped: Human labeling too inconsistent for training a CLF.</p>
 <h1 id="Sentiment-Rateability">Sentiment Rateability<a class="anchor-link" href="#Sentiment-Rateability">&#182;</a></h1><p>Prototype code for binary Classifier, which should discriminate between non- &amp; rateable Social Media Posts/Comments for Sentiment assignment.</p>
 
 </div>
@@ -13460,7 +13461,7 @@ Name: text, dtype: int64</pre>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fb58a034790&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f4684374650&gt;</pre>
 </div>
 
 </div>
@@ -13584,7 +13585,7 @@ y shapes (train/test): (1016,) / (255,)
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">logreg</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s2">&quot;saga&quot;</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">logreg</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s2">&quot;liblinear&quot;</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">svc</span> <span class="o">=</span> <span class="n">LinearSVC</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
 <span class="n">nb</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">()</span>
 
@@ -13610,7 +13611,8 @@ y shapes (train/test): (1016,) / (255,)
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">params</span><span class="p">[</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;penalty&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;l1&quot;</span><span class="p">,</span> <span class="s2">&quot;l2&quot;</span><span class="p">],</span>
+<span class="n">params</span><span class="p">[</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;penalty&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;l2&quot;</span><span class="p">],</span>
+                                <span class="s2">&quot;dual&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">],</span>
                                 <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span><span class="mf">30.</span><span class="p">,</span> <span class="mf">60.</span><span class="p">],</span>
                                 <span class="s2">&quot;class_weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;balanced&quot;</span><span class="p">]}</span>
 <span class="n">params</span><span class="p">[</span><span class="s2">&quot;LinearSVC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mf">20.</span><span class="p">],</span>
@@ -13684,8 +13686,8 @@ y shapes (train/test): (1016,) / (255,)
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>/home/datadonk23/anaconda3/envs/WBNRW19/lib/python3.7/site-packages/sklearn/linear_model/sag.py:337: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
-  &#34;the coef_ did not converge&#34;, ConvergenceWarning)
+<pre>/home/datadonk23/anaconda3/envs/WBNRW19/lib/python3.7/site-packages/sklearn/svm/base.py:929: ConvergenceWarning: Liblinear failed to converge, increase the number of iterations.
+  &#34;the number of iterations.&#34;, ConvergenceWarning)
 </pre>
 </div>
 </div>
@@ -13740,38 +13742,22 @@ y shapes (train/test): (1016,) / (255,)
     <div class="prompt"></div>
 
 
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>/home/datadonk23/anaconda3/envs/WBNRW19/lib/python3.7/site-packages/sklearn/linear_model/sag.py:337: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
-  &#34;the coef_ did not converge&#34;, ConvergenceWarning)
-/home/datadonk23/anaconda3/envs/WBNRW19/lib/python3.7/site-packages/sklearn/linear_model/sag.py:337: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
-  &#34;the coef_ did not converge&#34;, ConvergenceWarning)
-/home/datadonk23/anaconda3/envs/WBNRW19/lib/python3.7/site-packages/sklearn/linear_model/sag.py:337: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
-  &#34;the coef_ did not converge&#34;, ConvergenceWarning)
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>LogisticRegression_pipe
-Test score (mean): 0.8262182021028657
-Test fit time (mean): 10.43346980214119
-Train score: 0.89045751648049
-Params: {&#39;C&#39;: 1.0, &#39;class_weight&#39;: &#39;balanced&#39;, &#39;penalty&#39;: &#39;l1&#39;} 
+Test score (mean): 0.8264476632651416
+Test fit time (mean): 0.20628458261489868
+Train score: 0.8552526755955363
+Params: {&#39;C&#39;: 60.0, &#39;class_weight&#39;: &#39;balanced&#39;, &#39;dual&#39;: True, &#39;penalty&#39;: &#39;l2&#39;} 
 
 LinearSVC_pipe
 Test score (mean): 0.8335613479262672
-Test fit time (mean): 0.16618627309799194
+Test fit time (mean): 0.18397748470306396
 Train score: 0.8747856774748971
 Params: {&#39;C&#39;: 20.0, &#39;class_weight&#39;: &#39;balanced&#39;} 
 
 MultinomialNB_pipe
 Test score (mean): 0.8611404463218979
-Test fit time (mean): 0.09545838832855225
+Test fit time (mean): 0.10262247920036316
 Train score: 0.8673915589346374
 Params: {&#39;alpha&#39;: 1.0, &#39;fit_prior&#39;: False} 
 
@@ -13909,7 +13895,7 @@ Params: {&#39;alpha&#39;: 1.0, &#39;fit_prior&#39;: False}
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fb58855a550&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f46578a63d0&gt;</pre>
 </div>
 
 </div>
@@ -13988,7 +13974,7 @@ weighted avg       0.81      0.84      0.81       255
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fb5882071d0&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f46564ed0d0&gt;</pre>
 </div>
 
 </div>
@@ -14046,7 +14032,7 @@ weighted avg       0.81      0.84      0.81       255
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fb58819b390&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f465641cc50&gt;</pre>
 </div>
 
 </div>
@@ -14103,7 +14089,7 @@ weighted avg       0.81      0.84      0.81       255
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fb5881201d0&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f46564e1390&gt;</pre>
 </div>
 
 </div>
@@ -14115,14 +14101,14 @@ weighted avg       0.81      0.84      0.81       255
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h1><p>Binary classifier performs still too bad for non-rateable Posts/Comments. If its Recall can enhanced slightly (&gt;0.5) production use can be considered.</p>
+<h1 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h1><p>Binary classifier performs still too bad for non-rateable Posts/Comments. If its Recall can enhanced slightly (&gt;0.5) production use could be considered. Nonetheless, as manual inspection of non-rateable labeled samples showed that labeling is too inconsistent applied, this prototype will be stopped.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span> 
