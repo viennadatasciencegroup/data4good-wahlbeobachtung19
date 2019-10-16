@@ -29,3 +29,6 @@ def spacy_tokenizer(doc):
                                         cleaned_tokens.append(token)
     
     return [token.orth_ for token in cleaned_tokens]
+
+def plain_tokenizer(doc):
+    return [token.orth_ for token in nlp(doc)]
