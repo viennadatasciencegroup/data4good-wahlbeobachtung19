@@ -32,3 +32,19 @@ def spacy_tokenizer(doc):
 
 def plain_tokenizer(doc):
     return [token.orth_ for token in nlp(doc)]
+
+def topic_tokenizer(doc):
+    tokens = [token for token in nlp(doc)]
+    cleaned_tokens = []
+    for token in tokens:
+        if not token.is_punct:
+            if not token.is_digit:
+                if not token.is_space:
+                    if not token.like_url:
+                        if not token.like_num:
+                            if not token.like_email:
+                                if not token.is_stop:
+                                    if len(token) > 3: # skips emojis too
+                                        cleaned_tokens.append(token)
+    
+    return [token.lemma_ for token in cleaned_tokens]
