@@ -44,7 +44,9 @@ def topic_tokenizer(doc):
                         if not token.like_num:
                             if not token.like_email:
                                 if not token.is_stop:
-                                    if len(token) > 3: # skips emojis too
-                                        cleaned_tokens.append(token)
+                                    if not token.is_currency:
+                                        if not token._.is_emoji:
+                                            if len(token) > 1:
+                                                cleaned_tokens.append(token)
     
     return [token.lemma_ for token in cleaned_tokens]
