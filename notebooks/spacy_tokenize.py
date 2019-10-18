@@ -47,6 +47,9 @@ def topic_tokenizer(doc):
                                     if not token.is_currency:
                                         if not token._.is_emoji:
                                             if len(token) > 1:
-                                                cleaned_tokens.append(token)
+                                                if "@anonymer_user" in token.orth_:
+                                                    pass
+                                                else:
+                                                    cleaned_tokens.append(token)
     
     return [token.lemma_ for token in cleaned_tokens]
