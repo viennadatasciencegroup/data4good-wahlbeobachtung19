@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .vega-actions a {
+        margin-right: 12px;
+        color: #757575;
+        font-weight: normal;
+        font-size: 13px;
+    }
+    .error {
+        color: red;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@3.4.0"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@4"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"width": 400, "height": 300}, "mark": {"tooltip": null}}, "data": {"name": "data-0c867e1b89a7a69ecdd11822f2735c2e"}, "mark": "bar", "encoding": {"x": {"type": "ordinal", "field": "Topic"}, "y": {"type": "quantitative", "field": "count"}}, "$schema": "https://vega.github.io/schema/vega-lite/v3.4.0.json", "datasets": {"data-0c867e1b89a7a69ecdd11822f2735c2e": [{"Topic": 1, "count": 2310}, {"Topic": 16, "count": 1536}, {"Topic": 7, "count": 1219}, {"Topic": 0, "count": 876}, {"Topic": 17, "count": 659}, {"Topic": 32, "count": 652}, {"Topic": 22, "count": 638}, {"Topic": 9, "count": 589}, {"Topic": 25, "count": 577}, {"Topic": 5, "count": 564}, {"Topic": 34, "count": 545}, {"Topic": 23, "count": 545}, {"Topic": 2, "count": 521}, {"Topic": 28, "count": 514}, {"Topic": 35, "count": 500}, {"Topic": 27, "count": 490}, {"Topic": 20, "count": 480}, {"Topic": 11, "count": 476}, {"Topic": 3, "count": 452}, {"Topic": 12, "count": 448}, {"Topic": 15, "count": 436}, {"Topic": 10, "count": 431}, {"Topic": 39, "count": 428}, {"Topic": 19, "count": 427}, {"Topic": 21, "count": 422}, {"Topic": 38, "count": 420}, {"Topic": 29, "count": 419}, {"Topic": 8, "count": 417}, {"Topic": 18, "count": 417}, {"Topic": 31, "count": 414}, {"Topic": 33, "count": 395}, {"Topic": 36, "count": 394}, {"Topic": 26, "count": 394}, {"Topic": 37, "count": 393}, {"Topic": 14, "count": 384}, {"Topic": 6, "count": 372}, {"Topic": 30, "count": 364}, {"Topic": 24, "count": 358}, {"Topic": 13, "count": 333}, {"Topic": 4, "count": 325}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div class="error" style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
