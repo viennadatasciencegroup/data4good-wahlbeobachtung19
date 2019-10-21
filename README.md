@@ -82,7 +82,7 @@ Project Organization
 
 ## Contributors
 
-[Rania Wazir](https://github.com/rrania4r), [Thomas Treml](https://github.com/datadonK23), [Georg Heiler](https://github.com/geoHeil), [Maria Ronacher](https://github.com/mkalininait), [Jasmina Kadic](https://github.com/JasminaKadic), [Cristian-Dan Bara](https://github.com/cristianbara), [Paul Leitner](https://github.com/PaulBFB), [Matjaz Kovse](https://github.com/matjazkovse), tbd
+[Rania Wazir](https://github.com/rrania4r), [Thomas Treml](https://github.com/datadonK23), [Liad Magen](https://github.com/liadmagen), Martin Fenz
 
 
 ## License
