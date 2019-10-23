@@ -16,8 +16,7 @@ from nlp.preprocess_dataset import clean_dataframe
 
 
 if __name__ == "__main__":
-    # FIXME DB access
-    data_path = "/mnt/DATA/NRW2019 Dropbox/data 4good/CSVData"
+    data_path = "/Data/CSVData"
 
     logging.info("Load dataset")
     raw_data = load_data(data_path)
