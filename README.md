@@ -25,6 +25,12 @@ Project Organization
     ├── config             <- Project configuration settings and credentials (VC excluded)
     │   └── global.dcf     <- Global settings in DCF format.
     │
+    ├── data
+    │   ├── external       <- Data from third party sources.
+    │   ├── interim        <- Intermediate data that has been transformed.
+    │   ├── processed      <- The final, canonical data sets for modeling.
+    │   └── raw            <- The original, immutable data dump.
+    │
     ├── docs               <- A default Sphinx project; see sphinx-doc.org for details.
     │
     ├── environment.yml    <- Conda environment file for reproducint the analysis environment.
@@ -32,7 +38,6 @@ Project Organization
     │
     ├── ETHICS.md          <-Ethics checklist.
     │
-    ├── lexicons           <- Sentiment Analysis lexicons.
     ├── lib                <- R helper functions.
     │   ├── globals.R      <- Project specific functions.
     │   └── helpers.R      <- Helper functions.
