@@ -33,7 +33,7 @@ from config import credentials
 
 
 def request(url, params=None):
-    """ Make API request
+    """ Make API request.
 
     :param url: page URL
     :param params: parameters of request
@@ -136,7 +136,7 @@ def scrape_ads(id, name, window, non_stop_decision_date, data_path, user_dbx):
     :type non_stop_decision_date: datetime.date
     :param data_path: path of data folder
     :type data_path: str
-    :param user_dbx: Dropbox access as authentified team user
+    :param user_dbx: Dropbox access as authenticated team user
     :type user_dbx: dropbox.dropbox.Dropbox
     :return: DF of scraped ads
     :rtype: pd.DataFrame
@@ -199,7 +199,7 @@ def combine_intermediate_results(data_path, results_fname, user_dbx):
     :type data_path: str
     :param results_fname: filename of combined results CSV file
     :type results_fname: str
-    :param user_dbx: Dropbox access as authentified team user
+    :param user_dbx: Dropbox access as authenticated team user
     :type user_dbx: dropbox.dropbox.Dropbox
     :return: DF of all scraped ads
     :rtype: pd.DataFrame
@@ -227,16 +227,17 @@ if __name__ == "__main__":
         credentials.dropbox_team_namespace_id))
     user_dbx = team_root.as_user(credentials.dropbox_team_member_id)
 
+    # Paths and filenames
     info_path = "/Data/Info Lists"
     data_path = "/Data/CSVData/ads"
     results_fname = "Test_AdLibAll.csv"
 
+    # Monitoring period constraints
     monitoring_period_start = date(2019, 9, 8)
     monitoring_period_stop = date(2019, 9, 29)
     monitoring_window = (monitoring_period_start, monitoring_period_stop)
-
+    missing_stop_accounts = []  # bookkeep accounts w missing stop dates
     non_stop_decision_date = date(2019, 8, 1)
-    missing_stop_accounts = []
 
     # Get sources list
     logging.info("Load FanPages list")
