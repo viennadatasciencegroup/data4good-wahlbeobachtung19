@@ -23,6 +23,7 @@ from datetime import date, datetime, timezone
 logging.basicConfig(level=logging.INFO)
 
 import pandas as pd
+import dropbox
 import requests
 from requests.exceptions import HTTPError
 
@@ -119,7 +120,7 @@ def results_within_window(response, window, non_stop_decision_date):
     return relevant_results
 
 
-def scrape_ads(id, name, window, non_stop_decision_date, data_path):
+def scrape_ads(id, name, window, non_stop_decision_date, data_path, user_dbx):
     """ Scrape ads from one source (specified by user ID).
 
     :param id: user ID
@@ -135,6 +136,8 @@ def scrape_ads(id, name, window, non_stop_decision_date, data_path):
     :type non_stop_decision_date: datetime.date
     :param data_path: path of data folder
     :type data_path: str
+    :param user_dbx: Dropbox access as authentified team user
+    :type user_dbx: dropbox.dropbox.Dropbox
     :return: DF of scraped ads
     :rtype: pd.DataFrame
     """
@@ -155,7 +158,7 @@ def scrape_ads(id, name, window, non_stop_decision_date, data_path):
     relevant_ads = []
 
     # Inital request
-    response = request(ads_archive_url,params)
+    response = request(ads_archive_url, params)
     relevant_ads.extend(results_within_window(response, window,
                                               non_stop_decision_date))
 
@@ -175,44 +178,58 @@ def scrape_ads(id, name, window, non_stop_decision_date, data_path):
         except KeyError:
             last_page = True
 
-    # Make DF of relevant ads, clean snapshot URL (remove access token!) and
-    # persist it as intermediate result
+    # Make DF of relevant ads, clean snapshot URL (remove access token!)
     scraped_ads = pd.DataFrame(relevant_ads, columns=columns)
     cleaned_ads = scraped_ads.copy()
     cleaned_ads["ad_snapshot_url"] = scraped_ads["ad_snapshot_url"].apply(
         lambda x: x[:x.rfind("&access_token=")])
+
+    # persist it as intermediate result
     f_path = os.path.join(data_path, name.lower().replace(" ", "_") + ".csv")
-    cleaned_ads.to_csv(f_path, index=False)
+    user_dbx.files_upload(bytes(cleaned_ads.to_csv(index=False), "utf-8"),
+                          f_path, mode=dropbox.files.WriteMode.overwrite)
 
     return cleaned_ads
 
 
-def combine_intermediate_results(data_path, results_fpath):
-    """ Comnines interim results DFs to final result DF.
+def combine_intermediate_results(data_path, results_fname, user_dbx):
+    """ Combines interim results DFs to final result DF.
 
     :param data_path: path of data folder
     :type data_path: str
-    :param results_fpath: filepath for final results
-    :type results_fpath: str
+    :param results_fname: filename of combined results CSV file
+    :type results_fname: str
+    :param user_dbx: Dropbox access as authentified team user
+    :type user_dbx: dropbox.dropbox.Dropbox
     :return: DF of all scraped ads
     :rtype: pd.DataFrame
     """
     interim_results = []
-    interim_results_fpath = glob.glob(os.path.join(data_path, "*.csv"))
-    if results_fpath in interim_results_fpath:
-        interim_results_fpath.remove(results_fpath)
+    interim_results_files = []
+    for entry in user_dbx.files_list_folder(data_path, limit=500).entries:
+        if str(entry.name).endswith(".csv"):
+            interim_results_files.append(str(entry.name))
 
-    for fpath in interim_results_fpath:
-        interim_results.append(pd.read_csv(fpath))
+    if results_fname in interim_results_files:
+        interim_results_files.remove(results_fname)
+
+    for file_name in interim_results_files:
+        _, res = user_dbx.files_download(os.path.join(data_path, file_name))
+        interim_results.append(pd.read_csv(res.raw))
 
     return pd.concat(interim_results, axis=0)
 
 
 if __name__ == "__main__":
-    # FIXME DBaccess
-    info_path = "/mnt/DATA/NRW2019 Dropbox/data 4good/Info Lists"
-    data_path = "/mnt/DATA/NRW2019 Dropbox/data 4good/CSVData/ads"
-    results_fpath = os.path.join(data_path, "AdLibAll.csv")
+    # Dropbox client
+    team_dbx = dropbox.DropboxTeam(credentials.dropbox_team_access_token)
+    team_root = team_dbx.with_path_root(dropbox.common.PathRoot.namespace_id(
+        credentials.dropbox_team_namespace_id))
+    user_dbx = team_root.as_user(credentials.dropbox_team_member_id)
+
+    info_path = "/Data/Info Lists"
+    data_path = "/Data/CSVData/ads"
+    results_fname = "Test_AdLibAll.csv"
 
     monitoring_period_start = date(2019, 9, 8)
     monitoring_period_stop = date(2019, 9, 29)
@@ -223,13 +240,15 @@ if __name__ == "__main__":
 
     # Get sources list
     logging.info("Load FanPages list")
-    fanpages_df = pd.read_csv(os.path.join(info_path, "AdsListID.csv"))
+    _, res_sources = user_dbx.files_download(os.path.join(info_path,
+                                                          "AdsListID.csv"))
+    fanpages_df = pd.read_csv(res_sources.raw)
 
     # Loop through sources list and scrape ads for each source
     for _, row in fanpages_df.iterrows():
         logging.info("Scrape ads from " + row.Name)
         ads_data = scrape_ads(row.userID, row.Name, monitoring_window,
-                              non_stop_decision_date, data_path)
+                              non_stop_decision_date, data_path, user_dbx)
 
     logging.info("Count of accounts with missing 'ad_delivery_stop_time': " +
                  str(len(missing_stop_accounts)))
@@ -238,7 +257,9 @@ if __name__ == "__main__":
 
     # Merge all interim results in one DF of all scraped ads
     logging.info("Concatinating intermediate results")
-    result = combine_intermediate_results(data_path, results_fpath)
+    result = combine_intermediate_results(data_path, results_fname, user_dbx)
 
     logging.info("Persisting final results")
-    result.to_csv(results_fpath, index=False)
+    dump_path = os.path.join(data_path, results_fname)
+    user_dbx.files_upload(bytes(result.to_csv(index=False), "utf-8"),
+                          dump_path, mode=dropbox.files.WriteMode.overwrite)
