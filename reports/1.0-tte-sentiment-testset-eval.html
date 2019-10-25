@@ -13126,7 +13126,10 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">credentials</span>
+<span class="kn">import</span> <span class="nn">dropbox</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -13156,10 +13159,16 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_path</span> <span class="o">=</span> <span class="s2">&quot;/mnt/DATA/NRW2019 Dropbox/data 4good/CSVData/TestData&quot;</span>
-<span class="n">testset_fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">&quot;forSentAnalysis.csv&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">team_dbx</span> <span class="o">=</span> <span class="n">dropbox</span><span class="o">.</span><span class="n">DropboxTeam</span><span class="p">(</span><span class="n">credentials</span><span class="o">.</span><span class="n">dropbox_team_access_token</span><span class="p">)</span>
+<span class="n">team_root</span> <span class="o">=</span> <span class="n">team_dbx</span><span class="o">.</span><span class="n">with_path_root</span><span class="p">(</span><span class="n">dropbox</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">PathRoot</span><span class="o">.</span><span class="n">namespace_id</span><span class="p">(</span>
+    <span class="n">credentials</span><span class="o">.</span><span class="n">dropbox_team_namespace_id</span><span class="p">))</span>
+<span class="n">user_dbx</span> <span class="o">=</span> <span class="n">team_root</span><span class="o">.</span><span class="n">as_user</span><span class="p">(</span><span class="n">credentials</span><span class="o">.</span><span class="n">dropbox_team_member_id</span><span class="p">)</span>
 
-<span class="n">testset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">testset_fpath</span><span class="p">)</span>
+<span class="n">data_path</span> <span class="o">=</span> <span class="s2">&quot;/Data/CSVData&quot;</span>
+<span class="n">testset_fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">&quot;TestData&quot;</span><span class="p">,</span> <span class="s2">&quot;forSentAnalysis.csv&quot;</span><span class="p">)</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="n">res</span> <span class="o">=</span> <span class="n">user_dbx</span><span class="o">.</span><span class="n">files_download</span><span class="p">(</span><span class="n">testset_fpath</span><span class="p">)</span>
+<span class="n">testset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
 <span class="n">testset</span><span class="o">.</span><span class="n">shape</span>
 </pre></div>
 
