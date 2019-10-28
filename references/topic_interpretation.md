@@ -18,7 +18,7 @@
 * Topic 13: Mobilisierung Wien
 * Topic 14: ORF Wahldebatte
 * Topic 15: Mobilisierung Bundesländer
-* Topic 16: Populistisch
+* Topic 16: -
 * Topic 17: Puls4 Wahldebatte
 * Topic 18: Emotionen
 * Topic 19: Außenpolitik
@@ -30,7 +30,7 @@
 * Topic 25: Polarisierung
 * Topic 26: Strache
 * Topic 27: -
-* Topic 28: Grün alternativ
+* Topic 28: -
 * Topic 29: Neos
 * Topic 30: -
 * Topic 31: -
@@ -40,5 +40,5 @@
 * Topic 35: Greta Thunberg
 * Topic 36: -
 * Topic 37: -
-* Topic 38: Umweltthema SPÖ
+* Topic 38: -
 * Topic 39: -
