@@ -13371,7 +13371,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="s2">&quot;topic_lda&quot;</span><span class="p">,</span> <span class="s2">&quot;lda_30.joblib&quot;</span><span class="p">))</span>   
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="s2">&quot;topic_lda&quot;</span><span class="p">,</span> <span class="s2">&quot;lda_40.joblib&quot;</span><span class="p">))</span>   
 
 <span class="c1"># Transform</span>
 <span class="n">doc_topic_distr</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">tfidf_v</span><span class="p">)</span>
@@ -13415,7 +13415,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">persist_fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">&quot;topics&quot;</span><span class="p">,</span> <span class="s2">&quot;topics_n30.csv&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">persist_fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">&quot;topics&quot;</span><span class="p">,</span> <span class="s2">&quot;topics_n40.csv&quot;</span><span class="p">)</span>
 <span class="n">user_dbx</span><span class="o">.</span><span class="n">files_upload</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
                       <span class="n">persist_fpath</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">dropbox</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">WriteMode</span><span class="o">.</span><span class="n">overwrite</span><span class="p">)</span>
 </pre></div>
