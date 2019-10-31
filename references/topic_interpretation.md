@@ -14,7 +14,7 @@
 * Topic 9: Extrem Links - KPÖ, Jetzt, Grüne Wien
 * Topic 10: Liberal - Neos, tw. ÖVP
 * Topic 11: -
-* Topic 12: -
+* Topic 12: ÖVP Themen
 * Topic 13: Mobilisierung Wien
 * Topic 14: ORF Wahldebatte
 * Topic 15: Mobilisierung Bundesländer
@@ -25,7 +25,7 @@
 * Topic 20: Wahlprognose
 * Topic 21: Umwelt
 * Topic 22: -
-* Topic 23: -
+* Topic 23: Diskurs in Englisch
 * Topic 24: -
 * Topic 25: Polarisierung
 * Topic 26: Strache
