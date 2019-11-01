@@ -16,7 +16,7 @@ import pandas as pd
 
 
 def load_data(path):
-    """ Load Datasets
+    """ Load datasets
 
     Loads Post and Comments datasets and merge them together.
 

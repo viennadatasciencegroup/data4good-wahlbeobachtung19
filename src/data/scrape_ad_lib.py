@@ -18,7 +18,7 @@ Author: datadonk23
 Date: 08.10.19
 """
 
-import os, sys, logging, glob
+import os, sys, logging
 from datetime import date, datetime, timezone
 logging.basicConfig(level=logging.INFO)
 
@@ -49,9 +49,9 @@ def request(url, params=None):
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
     except HTTPError as http_err:
-        logging.critical(f'HTTP error occurred: {http_err}')
+        logging.critical(f"HTTP error occurred: {http_err}")
     except Exception as err:
-        logging.critical(f'Other error occurred: {err}')
+        logging.critical(f"Other error occurred: {err}")
     else:
         logging.info("Request successful")
         return response
@@ -236,7 +236,7 @@ if __name__ == "__main__":
     monitoring_period_start = date(2019, 9, 8)
     monitoring_period_stop = date(2019, 9, 29)
     monitoring_window = (monitoring_period_start, monitoring_period_stop)
-    missing_stop_accounts = []  # bookkeep accounts w missing stop dates
+    missing_stop_accounts = []  # bookkeep accounts w/ missing stop dates
     non_stop_decision_date = date(2019, 8, 1)
 
     # Get sources list
