@@ -17,21 +17,19 @@ Project Organization
 ------------
 
     ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
     ├── README.md          <- The top-level README for developers using this project.
     │
     ├── cache              <- Cached R data.
     │
     ├── config             <- Project configuration settings and credentials (VC excluded)
-    │   └── global.dcf     <- Global settings in DCF format.
+    │   ├── credentials.py       <- Needs to be created (instructions in `config/README.md`).
+    │   └── global.dcf           <- Global settings in DCF format.
     │
     ├── data
     │   ├── external       <- Data from third party sources.
     │   ├── interim        <- Intermediate data that has been transformed.
     │   ├── processed      <- The final, canonical data sets for modeling.
     │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details.
     │
     ├── environment.yml    <- Conda environment file for reproducint the analysis environment.
     │                         Generated with `env export > environment.yml`.
@@ -45,6 +43,8 @@ Project Organization
     ├── logs               <- Stores log files.
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries.
+    │   ├── topic_vectorizer  <- Text vecotrizers for Topic modeling.
+    │   └── topic_lda         <- LDA Topic models.
     │
     ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
     │                         the creators initials, and a short `-` delimited description, e.g.
@@ -53,38 +53,35 @@ Project Organization
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
+    │   └── figures        <- Generated graphics and figures to be used in reporting.
+    │         └── topics   <- Topic modeling graphics and figures.
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`.
     │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported.
-    │
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module.
-    │   │
-    │   ├── data           <- Scripts to download, collect, persist or generate data.
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── comment_evaluation  <- Shiny R script for comment evaluation app
-    │   │
-    │   ├── nlp            <- Scripts to clean and preprocess raw text data (NLP pipeline).
-    │   │
-    │   ├── analytics      <- Scripts to perform result oriented text analytics.
-    │   │
-    │   ├── topics         <- Scripts to perform topic modeling.
-    │   │
-    │   ├── sentiment      <- Scripts to perform sentiment analysis.
-    │   │
-    │   ├── visualization  <- Scripts to create exploratory and results oriented visualizations.
-    │   │
-    │   └── test           <- Test scripts.
-    │       └── 1.R
-    │       └── test_template.py
-    │
-    ├── test_environment.py <- Python version testscript.
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
+    └── src                <- Source code for use in this project.
+        ├── __init__.py    <- Makes src a Python module.
+        │
+        ├── data           <- Scripts to download, collect, persist or generate data.
+        │   ├── scrape_ad_lib.py	<- Scrape ads data from Ad Lib API.
+        │   └── FBCode				<- Collect data from FB.
+        │
+        ├── comment_evaluation  <- Shiny R script for comment evaluation app.
+        │
+        ├── nlp            <- Scripts to clean and preprocess raw text data (NLP pipeline).
+        │   ├── preprocessing.py	<- Preprocessing dev script.
+        │   └── spacy_tokenizer.py	<- Spacy-based text tokenizers.
+        │
+        ├── topics         <- Scripts to perform topic modeling.
+        │   └── topic_modeling.py	<- Topic modeling and topic assignment.
+        │
+        ├── sentiment      <- Scripts to perform sentiment analysis.
+        │
+        ├── visualization  <- Scripts to create exploratory and results oriented visualizations.
+        │
+        └── test           <- Test scripts.
+
+
 
 
 ## Contributors
