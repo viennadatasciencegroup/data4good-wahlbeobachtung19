@@ -115,7 +115,7 @@ def assign_topic(data, doc_topic_distr):
     :rtype: pd.DataFrame
     """
     data["topic_distribution"] = doc_topic_distr.tolist()
-    data["topic"] = np.argmax(doc_topic_distr, axis=1)
+    data["topic"] = np.argmax(doc_topic_distr, axis=1) + 1
 
     return data
 
