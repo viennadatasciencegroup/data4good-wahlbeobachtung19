@@ -4,7 +4,7 @@
 Utility methods for Topic Modeling script.
 
 Author: datadonk23
-Date: 31.10.19 
+Date: 13.11.19
 """
 
 import os, sys
@@ -12,6 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(),
                                              os.pardir, os.pardir, "config")))
 from config import credentials
 import dropbox
+import pandas as pd
 
 
 def load_data(path):
@@ -36,13 +37,15 @@ def load_data(path):
     return posts
 
 
-def save_data(data, path):
+def save_data(data, path, name):
     """ Persist data (incl. assigned topics) to disk.
 
     :param data: DF with assigned topics to persist
     :type data: pd.DataFrame
     :param path: data directory path
     :type path: str
+    :param name: model name
+    :type name: str
     :return: -
     """
     # Dropbox client
@@ -52,6 +55,6 @@ def save_data(data, path):
     user_dbx = team_root.as_user(credentials.dropbox_team_member_id)
 
     # Persist to disk
-    persist_fpath = os.path.join(path, "topics", "final_topics_LDAn40.csv")
+    persist_fpath = os.path.join(path, "topics", name + ".csv")
     user_dbx.files_upload(bytes(data.to_csv(index=False), "utf-8"),
                           persist_fpath, mode=dropbox.files.WriteMode.overwrite)

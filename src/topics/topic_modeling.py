@@ -1,11 +1,11 @@
 #!/usr/bin/python
 """ topic_modeling
 
-Trains a Topic Model (LDA w/ 40 components) on Tf-idf vectorized text data and
+Trains a Topic Model (LDA w/ 20 components) on Tf-idf vectorized text data and
 assigns the most probable topic to the Social Media Posts.
 
 Author: datadonk23
-Date: 31.10.19 
+Date: 13.11.19
 """
 
 import os, logging, warnings
@@ -21,7 +21,7 @@ import pandas as pd
 
 logging.info("Load util scripts")
 from topics.topic_modeling_utils import load_data, save_data
-from nlp.spacy_tokenizer import topic_tokenizer
+from nlp.spacy_tokenizer import topic_tokenizer2
 
 
 def preprocess(data):
@@ -51,43 +51,63 @@ def preprocess(data):
     return data
 
 
-def print_scores(model, tfidf_v, name):
+def filter_empty_vecs(dtm, data):
+    """ Removes rows which have an empty tfidf vector from doc-term matrix and
+    train dataset.
+
+    :param dtm: Tfidf doc-term matrix
+    :type dtm: scipy.sparse.csr.csr_matrix
+    :param data: DF of preprocessed data
+    :type data: pd.DataFrame
+    :return: (tfidf_dtm, data)
+    :rtype: (scipy.sparse.csr.csr_matrix, pd.Dataframe)
+    """
+    empty_vecs = np.array(dtm.sum(axis=1) == 0).ravel()
+
+    # Filter empty vecs from doc-term matrix and empty rows from corpus DF
+    dtm_filtered = dtm[~empty_vecs]
+    data.drop(data.index[empty_vecs.tolist()], inplace=True)
+
+    return dtm_filtered, data
+
+
+def print_scores(model, dtm, name):
     """ Prints Log-Likelihood and Perplexity score of model to stdout.
 
     :param model: fitted LDA model
     :type model: sklearn.decomposition.LatentDirichletAllocation
-    :param tfidf_v: Tfidf vectors of corpus
-    :type tfidf_v: scipy.sparse.csr.csr_matrix
+    :param dtm: Tfidf doc-term matrix
+    :type dtm: scipy.sparse.csr.csr_matrix
     :return: -
     """
     print("Scores for", name)
-    print("Log Likelihood:", model.score(tfidf_v))
-    print("Perplexity:", model.perplexity(tfidf_v), "\n")
+    print("Log Likelihood:", model.score(dtm))
+    print("Perplexity:", model.perplexity(dtm), "\n")
 
 
-def visualize_model(model, tfidf, tfidf_v, figures_path):
+def visualize_model(model, tfidf, tfidf_dtm, figures_path):
     """ Visualization of LDA model. Persisted as standalone HTML file.
 
     :param model: fitted LDA model
     :type model: sklearn.decomposition.LatentDirichletAllocation
     :param tfidf: Tfidf vectorizer
     :type tfidf: sklearn.feature_extraction.text.TfidfVectorizer
-    :param tfidf_v: Tfidf vectors of corpus
-    :type tfidf_v: scipy.sparse.csr.csr_matrix
+    :param tfidf_dtm: Tfidf doc-term matrix
+    :type tfidf_dtm: scipy.sparse.csr.csr_matrix
     :param figures_path: Path to persist visualization
     :type figures_path: str
     :return: -
     """
-    viz_fpath = os.path.join(figures_path, "topics", "topics_LDAn40_model.html")
+    viz_fpath = os.path.join(figures_path, "topics", "topics_final_LDAn20.html")
 
-    p = pyLDAvis.sklearn.prepare(model, tfidf_v, tfidf, mds="tsne")
+    p = pyLDAvis.sklearn.prepare(model, tfidf_dtm, tfidf, mds="tsne")
     pyLDAvis.save_html(p, viz_fpath)
 
 
 def assign_topic(data, doc_topic_distr):
-    """ Assigns topic to documnents of corpus.
+    """ Assigns dominant topic to documents of corpus.
 
-    :param data: DF of preprocessed text data
+    :param data: DF of preprocessed and filtered text data
     :type data: pd.DataFrame
     :param doc_topic_distr: Array of topic distribution per doc of corpus
     :type doc_topic_distr: np.array
@@ -95,7 +115,7 @@ def assign_topic(data, doc_topic_distr):
     :rtype: pd.DataFrame
     """
     data["topic_distribution"] = doc_topic_distr.tolist()
-    data["topic"] = doc_topic_distr.argmax(axis=1)
+    data["topic"] = np.argmax(doc_topic_distr, axis=1)
 
     return data
 
@@ -113,30 +133,32 @@ if __name__ == "__main__":
     preprocessed_data = preprocess(posts)
 
     logging.info("Vectorize text")
-    tfidf = TfidfVectorizer(lowercase=True, tokenizer=topic_tokenizer,
+    tfidf = TfidfVectorizer(lowercase=True, tokenizer=topic_tokenizer2,
                             max_features=40000)
-    tfidf_v = tfidf.fit_transform(preprocessed_data.text)
+    tfidf_dtm = tfidf.fit_transform(preprocessed_data.text)
+    tfidf_dtm_filtered, filtered_data = filter_empty_vecs(tfidf_dtm,
+                                                          preprocessed_data)
 
     logging.info("Persist vectorizer")
     dump(tfidf, os.path.join(model_path, "topic_vectorizer",
                              "final_tfidf.joblib"))
-    dump(tfidf_v, os.path.join(model_path,
-                               "topic_vectorizer", "final_tfidf_v.joblib"))
+    dump(tfidf_dtm_filtered, os.path.join(model_path, "topic_vectorizer",
+                                          "final_tfidf_dtm.joblib"))
 
     logging.info("Modeling")
-    model = LatentDirichletAllocation(n_components=40, n_jobs=1,
+    model = LatentDirichletAllocation(n_components=20, n_jobs=1,
                                       random_state=random_state, verbose=1)
-    doc_topic_distr = model.fit_transform(tfidf_v)
+    doc_topic_distr = model.fit_transform(tfidf_dtm_filtered)
 
     logging.info("Persist model")
-    dump(model, os.path.join(model_path, "topic_lda", "final_LDAn40.joblib"))
+    dump(model, os.path.join(model_path, "topic_lda", "final_LDAn20.joblib"))
 
     logging.info("Evaluate model")
-    print_scores(model, tfidf_v, "LDA_n40")
-    visualize_model(model, tfidf, tfidf_v, figures_path)
+    print_scores(model, tfidf_dtm_filtered, "LDA_n20")
+    visualize_model(model, tfidf, tfidf_dtm_filtered, figures_path)
 
     logging.info("Assign topics to documents")
-    topic_data = assign_topic(preprocessed_data, doc_topic_distr)
+    topic_data = assign_topic(filtered_data, doc_topic_distr)
 
     logging.info("Persist dataset")
-    save_data(topic_data, data_path)
+    save_data(topic_data, data_path, "final_topics_LDAn20")
