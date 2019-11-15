@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .vega-actions a {
+        margin-right: 12px;
+        color: #757575;
+        font-weight: normal;
+        font-size: 13px;
+    }
+    .error {
+        color: red;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@3.4.0"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@4"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"width": 400, "height": 300}, "mark": {"tooltip": null}}, "data": {"name": "data-9058c41fa96b5f47a278d712fee9e9f1"}, "mark": "bar", "encoding": {"opacity": {"value": 0.75}, "tooltip": [{"type": "nominal", "field": "topic_interpretation", "title": "Interpretation"}], "x": {"type": "nominal", "field": "topic", "title": "Topic"}, "y": {"type": "quantitative", "field": "count", "title": "Number of posts"}}, "title": "Posts per Topic", "$schema": "https://vega.github.io/schema/vega-lite/v3.4.0.json", "datasets": {"data-9058c41fa96b5f47a278d712fee9e9f1": [{"topic": 11, "count": 1824, "topic_interpretation": "\u00d6VP"}, {"topic": 13, "count": 1564, "topic_interpretation": "SP\u00d6"}, {"topic": 6, "count": 1495, "topic_interpretation": "Parteien"}, {"topic": 4, "count": 1435, "topic_interpretation": "Steuern/Geld"}, {"topic": 9, "count": 1335, "topic_interpretation": "Dank/TV-Runde"}, {"topic": 20, "count": 1268, "topic_interpretation": "Rechts-au\u00dfen"}, {"topic": 3, "count": 1234, "topic_interpretation": "Gr\u00fcne"}, {"topic": 7, "count": 1196, "topic_interpretation": "Prognosen"}, {"topic": 15, "count": 1175, "topic_interpretation": "-"}, {"topic": 12, "count": 1135, "topic_interpretation": "-"}, {"topic": 16, "count": 1078, "topic_interpretation": "FP\u00d6"}, {"topic": 19, "count": 1062, "topic_interpretation": "-"}, {"topic": 8, "count": 1045, "topic_interpretation": "KP\u00d6/LinkeVorderungen"}, {"topic": 10, "count": 1044, "topic_interpretation": "Links/Alternativ"}, {"topic": 18, "count": 1010, "topic_interpretation": "Wahlkampfslogans"}, {"topic": 2, "count": 995, "topic_interpretation": "Wohnen/Sicherheit"}, {"topic": 1, "count": 937, "topic_interpretation": "-"}, {"topic": 5, "count": 866, "topic_interpretation": "TV"}, {"topic": 17, "count": 864, "topic_interpretation": "-"}, {"topic": 14, "count": 822, "topic_interpretation": "Volksparteien"}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div class="error" style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
