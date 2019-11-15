@@ -100,7 +100,8 @@ def visualize_model(model, tfidf, tfidf_dtm, figures_path):
     """
     viz_fpath = os.path.join(figures_path, "topics", "topics_final_LDAn20.html")
 
-    p = pyLDAvis.sklearn.prepare(model, tfidf_dtm, tfidf, mds="tsne")
+    p = pyLDAvis.sklearn.prepare(model, tfidf_dtm, tfidf, sort_topics=False,
+                                 mds="tsne")
     pyLDAvis.save_html(p, viz_fpath)
 
 
