@@ -1,6 +1,6 @@
 # Topic Modeling: Interpretation
 
-## n_topics = 40
+## n_topics = 20
 
 * Topic 0: -
 * Topic 1: -
