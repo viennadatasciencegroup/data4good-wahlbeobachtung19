@@ -25,8 +25,8 @@ devtools::document(pkg = use_package)
 
 
 
-source("R Code/TwitterCode/TwitterUtilityFuncs.R")
-source("R Code/FBCode/FaceBookUtilityFuncs.R")
+source("R Code/TwitterCode/TwitterUtilities.R")
+source("R Code/FBCode/FaceBookUtilities.R")
 
 
 
