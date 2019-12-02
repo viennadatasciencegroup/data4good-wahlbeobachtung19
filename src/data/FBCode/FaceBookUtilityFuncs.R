@@ -110,7 +110,7 @@ get_PolFeed <- function(FBFeedFile = "CleanedPolFeeds.RData", startDate = NULL, 
   if (!file.exists(FBFeedPath)) FBFeedPath <- file.path("..", "Collect Comments", FBFeedPath)
   
   
-  if (!is_empty(FBFeedPath)) {   
+  if (file.exists(FBFeedPath)) {   
     attach(FBFeedPath)
     cleanedFBPosts <- cleanedFBPosts
     firstNum <- firstNum
@@ -167,7 +167,7 @@ save_PolFeed <- function(cleanedFBPosts, fName = "CleanedPolFeeds.RData", ...) {
 addTo_PolFeed <- function(PostList, FBFeedFile = "CleanedPolFeeds.RData", minFileNum = 1L, ...) {
   
   startDate <- firstDay
-  limitDate <- lastPostDay
+  limitDate <- lastPostDay + 1
   
   PostList <- removeNull(PostList)
   FBPostsNew <- bind_rows(PostList, .id = "Politician")
