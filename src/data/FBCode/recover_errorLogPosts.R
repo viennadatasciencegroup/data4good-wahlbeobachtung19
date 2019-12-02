@@ -18,7 +18,7 @@ for (i in 1:nrow(errorPolDF)) {
   print(pol)
   pHandle <- errorPolDF$polHandles[i]
   resp <- tryCatch(get_FBPosts(pHandle,
-                               sinceDate = sinceDate - 2,
+                               sinceDate = sinceDate - 1,
                                untilDate = untilDate - 2,
                                num = 2000,
                                FBToken = FBToken),
@@ -32,10 +32,10 @@ for (i in 1:nrow(errorPolDF)) {
                    })
   FBFeedList[[pol]] <- resp
   
-  if (i %% 5 == 0L) Sys.sleep(300) else Sys.sleep(60)
+  if (i %% 5 == 0L) Sys.sleep(300) else Sys.sleep(6)
 }
 
-
+errorLog <- NULL
 
 
 #########################################################################################

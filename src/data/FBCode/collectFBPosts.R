@@ -33,7 +33,7 @@ polList <- polDF$polHandles
 ################## DOWNLOADING the Politican Timelines ##################################
 #########################################################################################
 
-limitDate <- lastPostDay # The last date on which to collect politician posts
+limitDate <- lastPostDay + 1 # The last date on which to collect politician posts
 N <- nrow(polDF)
 
 d <- dir("Data/FBData/Tokens")
@@ -78,7 +78,7 @@ print(Sys.time())
 print("***************************************")
 print("")
 
-for (k in useTokens1) {
+for (k in useTokens) {
   # Decide which FB Token to use ... (1, 2, 3, 4, or 5)
   FBToken <- load_Token(k)
   

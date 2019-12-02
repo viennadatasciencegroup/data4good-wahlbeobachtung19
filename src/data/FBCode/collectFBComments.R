@@ -45,7 +45,7 @@ FBPosts <- get_PolFeed(returnRes = "Feed")
 # and don't need comments to be downloaded yet
 # Also: get comments from posts that are 10 days or older
 startDate <- firstDay
-limitDate <- lastPostDay
+limitDate <- lastPostDay + 1
 maxDate <- min(Sys.Date() - 1, lastDay)
 minDate <- Sys.Date() - 5 - 2
 
@@ -61,8 +61,7 @@ if (useFN < maxFileNum) { # then we can do some comment collection:
   # split the df into ones with comments already downloaded, and ones not:
   comAvail <- filter(FBPosts, FileNum != useFN | CommentsAvail >= as.Date(dateCreated) + 11)
   
-  ComToDownload <- filter(FBPosts, FileNum == useFN, CommentsAvail < as.Date(dateCreated) + 11) %>% 
-    arrange(desc(comments_count))
+  ComToDownload <- filter(FBPosts, FileNum == useFN, CommentsAvail < as.Date(dateCreated) + 11) 
   
   noComments <- filter(ComToDownload, comments_count == 0) %>%
     mutate(CommentsAvail = as.Date("2019-12-31"), RepAvail = as.Date("2019-12-31"))
@@ -169,7 +168,7 @@ if (useFN < maxFileNum) { # then we can do some comment collection:
         }
         
         save(newComs, s, file = "Data/FBData/TempC/Comments.RData")
-        if (totalComments %% 10000 == 0L) Sys.sleep(1200) else if (s %% 100 == 0L) Sys.sleep(300) else Sys.sleep(20)
+        if (totalComments %% 10000 == 0L) Sys.sleep(1200) else if (s %% 100 == 0L) Sys.sleep(300) else Sys.sleep(5)
       }
       
       
@@ -179,7 +178,7 @@ if (useFN < maxFileNum) { # then we can do some comment collection:
     
     if (firstN > maxComs) break
     
-    if (k < T) {
+    if (k != useTokens[T]) {
       print("Pause 10 mins before next token")
       Sys.sleep(600)
     }

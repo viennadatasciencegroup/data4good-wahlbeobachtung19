@@ -65,8 +65,7 @@ list2env(get_DownloadedReplies(FN = useFN), envir = environment())
 repAvail <- filter(comDFavail, !(Politician %in% followPols) | repAvail > as.Date(dateCreated) + 7)
   
 
-RepToDownload <- filter(comDFavail, Politician %in% followPols, repAvail < as.Date(dateCreated) + 8) %>% 
-  arrange(desc(comments_count))
+RepToDownload <- filter(comDFavail, Politician %in% followPols, repAvail < as.Date(dateCreated) + 8)
 
 
 StillToDownload <- NULL
@@ -102,7 +101,7 @@ firstNR <- 1
 maxComs <- l
 
 # Or get some at a time:
-firstNR <- 10440
+firstNR <- 2000
 maxComs <- l
 
 
@@ -191,14 +190,14 @@ for (k in useTokens) {
           totalComments <- 0
           save(comReps, file = "Data/FBData/TempR/Replies2.RData")
           print("taking a few minutes break")
-          Sys.sleep(1200)
+          Sys.sleep(300)
         } else {
-          Sys.sleep(180)
+          Sys.sleep(120)
         }
-      } else if (totalComments > 1000) {
+      } else if (totalComments > 2000) {
         totalComments <- 0
         save(comReps, file = "Data/FBData/TempR/Replies2.RData")
-        Sys.sleep(720)
+        Sys.sleep(600)
       }
     }
     
@@ -216,8 +215,8 @@ for (k in useTokens) {
   firstNR <- endI + 1
   if (firstNR > maxComs) break
   
-  print("waiting 30 minutes before loading next token")
-  Sys.sleep(1500)
+  print("waiting 20 minutes before loading next token")
+  Sys.sleep(900)
 }
 
 sink()
