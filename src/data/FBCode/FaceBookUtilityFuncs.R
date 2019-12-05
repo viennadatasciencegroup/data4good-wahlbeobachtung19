@@ -3,18 +3,6 @@
 # This file contains various utility functions for the collection and storing of FB posts/comments
 
 
-source("./R Code/FBCode/myRfacebook/myGetCommentReplies.R")
-source("./R Code/FBCode/myRfacebook/myGetPost.R")
-source("./R Code/FBCode/myRfacebook/myGetPage.R")
-source("./R Code/FBCode/myRfacebook/myRFacebook_utils.R")
-source("./R Code/hashSecrets.R")
-source("./R Code/GeneralUtilityFuncs.R")
-source("./R Code/FBCode/FBCommentSamplingFunctions.R")
-
-morePols <- c()
-
-
-
 #########################################################################################
 ######################      LOAD Tokens       ###########################################
 #########################################################################################
@@ -40,8 +28,12 @@ load_Token <- function(n = 1) {
 
 
 # Returns a data frame with politician names and their twitter handles
-get_FBPolDF <- function() {
-  polFile <- file.path("PoliticianList", "List_of_Politicians.csv")
+get_FBPolDF <- function(fName = NULL) {
+  if (is_empty(fName)) fName <- "List_of_Politicians.csv"
+  
+  polFile <- file.path("PoliticianList", fName)
+  if (!file.exists(polFile)) polFile <- file.path("..", "Collect Comments", polFile)
+  
   polDF <- read_csv(file = polFile)
   
   polFBHandles <- polDF$FB_Confirmed %>%
@@ -112,10 +104,13 @@ get_FBPolHandle <- function(pName, polDF = NULL) {
 
 get_PolFeed <- function(FBFeedFile = "CleanedPolFeeds.RData", startDate = NULL, returnRes = "All") {
   
-  if (is.null(startDate)) startDate <- as.Date("2019-09-08")
+  if (is.null(startDate)) startDate <- firstDay
   
   FBFeedPath <- file.path("Data", "FBData", FBFeedFile)
-  if (file.exists(FBFeedPath)) {
+  if (!file.exists(FBFeedPath)) FBFeedPath <- file.path("..", "Collect Comments", FBFeedPath)
+  
+  
+  if (file.exists(FBFeedPath)) {   
     attach(FBFeedPath)
     cleanedFBPosts <- cleanedFBPosts
     firstNum <- firstNum
@@ -136,9 +131,9 @@ get_PolFeed <- function(FBFeedFile = "CleanedPolFeeds.RData", startDate = NULL, 
          "Log" = return(errorLog),
          "Status" = {
            results <- list(firstNum = firstNum,
-                sinceDate = sinceDate,
-                untilDate = untilDate,
-                errorLog = errorLog)
+                           sinceDate = sinceDate,
+                           untilDate = untilDate,
+                           errorLog = errorLog)
            return(results)
          },
          {results <- list(cleanedFBPosts = cleanedFBPosts,
@@ -172,7 +167,7 @@ save_PolFeed <- function(cleanedFBPosts, fName = "CleanedPolFeeds.RData", ...) {
 addTo_PolFeed <- function(PostList, FBFeedFile = "CleanedPolFeeds.RData", minFileNum = 1L, ...) {
   
   startDate <- firstDay
-  limitDate <- lastPostDay
+  limitDate <- lastPostDay + 1
   
   PostList <- removeNull(PostList)
   FBPostsNew <- bind_rows(PostList, .id = "Politician")
@@ -238,7 +233,7 @@ get_FBPosts <- function(name, num = 1000, sinceDate = NULL, untilDate = NULL, FB
                             errorInfo <- list(Pol = name, Msg = msg, Time = Sys.time())
                             errorLog[[name]] <<- errorInfo
                             if (str_detect(msg, "request limit reached") == TRUE) {
-                              Sys.sleep(1200) # stop for 20 minutes
+                              Sys.sleep(1800) # stop for 30 minutes
                             } else {
                               Sys.sleep(90)
                             }
@@ -248,8 +243,9 @@ get_FBPosts <- function(name, num = 1000, sinceDate = NULL, untilDate = NULL, FB
   if (is_empty(currentPage) || nrow(currentPage) == 0) return(NULL)
   
   currentPage <- currentPage %>%
-    select(user = from_name, text = message, created = created_time, everything(), -type, -link, -story) 
-  
+    select(user = from_name, text = message, created = created_time, everything(), -type, -link, -story) %>%
+    mutate(Deleted = FALSE)
+
   # Let the system sleep depending on length of current page:
   # In fact, getPage has to call the API every 25 posts, so let it rest 3 secs for every API call:
   numRounds <- ceiling(nrow(currentPage)/25)
@@ -433,6 +429,7 @@ get_FBReplies <- function(comment, numRep = 10000, untilDate = NULL) {
   
   numberR <- comment$comments_count
   replyPost <- comment$origPost
+  Lvl <- comment$Level
   
   # If there are too many replies, cap with numRep
   
@@ -469,7 +466,7 @@ get_FBReplies <- function(comment, numRep = 10000, untilDate = NULL) {
   if (is.null(comRep)) return(NULL)
   if (any(comRep == "REMOVED", na.rm = TRUE)) {
     commentReplies <- tibble(text = "[LEVEL 1 COMMENT AND REPLIES REMOVED]", 
-                                 Level = 2,
+                                 Level = 1 + Lvl,
                                  replyToID = commentID,
                              origPost = replyPost,
                              Politician = comment$Politician,
@@ -480,10 +477,10 @@ get_FBReplies <- function(comment, numRep = 10000, untilDate = NULL) {
   commentReplies <- bind_rows(comRep)
   
   commentReplies$replyToID <- commentID
-  commentReplies$Level <- 2
+  commentReplies$Level <- Lvl + 1
   commentReplies$origPost <- replyPost
   commentReplies$replyToID[1] <- replyPost
-  commentReplies$Level[1] <- 1
+  commentReplies$Level[1] <- Lvl
   commentReplies$Politician <- comment$Politician
   commentReplies$replyToUser <- comment$user
 
@@ -502,7 +499,7 @@ get_FBReplies <- function(comment, numRep = 10000, untilDate = NULL) {
 #########################################################################################
 
 # Hash the id in v if name is not one of the politician Twitter Handles
-FBhash_id <- function(v, name, Level, polDF = NULL, otherPols = NULL) {
+FBhash_id <- function(v, name, polDF = NULL, otherPols = NULL) {
   if (is_empty(v) || all(is.na(v)) || all(v == "")) return(NA)
   if (is.null(polDF)) polDF <- get_AllPolDF("FB")
   foundPols <- c(polDF$Name, polDF$polHandles, polDF$listName, otherPols)
@@ -511,6 +508,18 @@ FBhash_id <- function(v, name, Level, polDF = NULL, otherPols = NULL) {
   set.seed(secretSeed)
   rnum <- as.raw(sample(100, 1))
   newV <- ifelse(str_to_lower(name) %in% searchPols, v, sha256(x = v, key = rnum))
+  
+  return(newV)
+}
+
+
+# Hash the id in v if name is not one of the politician Twitter Handles
+FBhash_origPost <- function(v, Level) {
+  if (is_empty(v) || all(is.na(v)) || all(v == "")) return(NA)
+
+  set.seed(secretSeed)
+  rnum <- as.raw(sample(100, 1))
+  newV <- ifelse(Level < 10L, v, sha256(x = v, key = rnum))
   
   return(newV)
 }

@@ -15,9 +15,10 @@ library(rdrop2)
 library(Rfacebook)
 library(lubridate)
 
-source("./R Code/FBCode/FaceBookUtilityFuncs.R")
+source("./R Code/FBCode/FaceBookUtilities.R")
 
 
+set.seed(as.integer(Sys.time()))
 
 #########################################################################################
 ###################### LOAD List of Politicians #########################################
@@ -32,15 +33,38 @@ polList <- polDF$polHandles
 ################## DOWNLOADING the Politican Timelines ##################################
 #########################################################################################
 
-limitDate <- lastPostDay # The last date on which to collect politician posts
+limitDate <- lastPostDay + 1 # The last date on which to collect politician posts
 N <- nrow(polDF)
 
 d <- dir("Data/FBData/Tokens")
 T <- length(d) # Number of tokens available
 
-perRound <- ceiling(N/T)
+
 # get the status of the politician feed collection so far (firstNum, sinceDate, untilDate, errorLog)
 list2env(get_PolFeed(returnRes = "Status"), envir = environment())
+
+# check which tokens are currently working
+ERROR <- FALSE
+useTokens <- NULL
+for (i in 1:T) {
+  FBToken <- load_Token(i)
+  info <- tryCatch(getUsers("me", token = FBToken),
+                   error = function(e) {
+                     print(e)
+                     ERROR <- TRUE
+                   })
+  if (!ERROR) useTokens <- c(useTokens, i)
+  ERROR <- FALSE
+}
+
+T <- length(useTokens)
+
+useTokens <- sample(useTokens, T) 
+# useTokens <- c(useTokens, useTokens)
+
+numComs <- N - firstNum + 1
+perRound <- ceiling(numComs/T)
+# perRound <- ceiling(numComs/(2*T))
 
 untilDate <- min(max(untilDate, Sys.Date() - 2), limitDate)
 
@@ -48,13 +72,13 @@ FBFeedList <- vector("list", N)
 names(FBFeedList) <- polDF$listName
 
 
-sink(file = "Data/FBData/Temp/logfile.txt")  # save to a logfile
+sink(file = "Data/FBData/Temp/logfile.txt", split = TRUE)  # save to a logfile
 
 print(Sys.time())
 print("***************************************")
 print("")
 
-for (k in 1:T) {
+for (k in useTokens) {
   # Decide which FB Token to use ... (1, 2, 3, 4, or 5)
   FBToken <- load_Token(k)
   
@@ -93,7 +117,7 @@ for (k in 1:T) {
                        msg <- as.character(simpleError(e))
                        errorInfo <- list(Pol = p, Msg = msg, Time = Sys.time())
                        errorLog[[p]] <<- errorInfo
-                       Sys.sleep(10)
+                       Sys.sleep(60)
                        return(NULL)
                      })
     
@@ -102,12 +126,12 @@ for (k in 1:T) {
     save(resp, p, sinceDate, untilDate, file = paste0("Data/FBData/Temp/", tStamp, "_FBPosts.RData"))
     
     # Pause in-between rounds
-    if (numRounds > 20) {
+    if (numRounds > 10) {
       numRounds <<- 1
-      Sys.sleep(300) # 5 minutes
+      Sys.sleep(900) # 15 minutes
     } else {
       numRounds <<- numRounds + 1
-      Sys.sleep(5) # 5 seconds
+      Sys.sleep(10) # 10 seconds
     }
     
     return(resp)

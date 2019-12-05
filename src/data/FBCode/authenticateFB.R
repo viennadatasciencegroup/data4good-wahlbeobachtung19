@@ -32,7 +32,7 @@ FBToken <- fbOAuth(app_id = FB_ID, app_secret = FB_Key, extended_permissions = F
 (info <- getUsers("me", token = FBToken))
 
 # chenge the token number each time!
-FBPath <- file.path("Data", "FBData", "Tokens", "FBToken_2")
+FBPath <- file.path("Data", "FBData", "Tokens", "FBToken_1")
 saveRDS(FBToken, file = FBPath)
 
 
