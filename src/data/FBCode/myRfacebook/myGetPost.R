@@ -1,6 +1,6 @@
 
 # Message from FB: 13.09.2019
-# (#12) type field is deprecated for versions v3.3 and higher
+# (#12) type, link, name field is deprecated for versions v3.3 and higher
 
 myGetPost <- function(post, token, minDate, n=500, comments=TRUE, likes=(!reactions), reactions=FALSE, n.likes=n,
                     n.comments=n, n.reactions=n, api=NULL){
@@ -8,7 +8,7 @@ myGetPost <- function(post, token, minDate, n=500, comments=TRUE, likes=(!reacti
   
   print("In myGetPost")
   url <- paste0("https://graph.facebook.com/", post,
-                "?fields=from,message,created_time,link,name,shares")
+                "?fields=from,message,created_time,shares")
   
   if (comments==TRUE){
     url <- paste0(url, ",comments.summary(true).",
@@ -131,7 +131,7 @@ myGetPost <- function(post, token, minDate, n=500, comments=TRUE, likes=(!reacti
     
     temp <- out[["comments"]]
     TimeStamp <- as.integer(Sys.time())
-    save(temp, file = paste0("Data/Temp/", TimeStamp, "_MissingComments.RData"))
+    save(temp, file = paste0("Data/FBData/TempC/", TimeStamp, "_MissingComments.RData"))
     
     if (is_empty(temp) || nrow(temp) == 0L) upToDate <- TRUE else upToDate <- min(as.Date(temp$created_time)) < minDate
     
@@ -142,7 +142,7 @@ myGetPost <- function(post, token, minDate, n=500, comments=TRUE, likes=(!reacti
       out[["comments"]] <- rbind(out[["comments"]],
                                  commentsDataToDF(content$data))
       temp <- out[["comments"]]
-      save(temp, file = paste0("Data/Temp/", TimeStamp, "_MissingComments.RData"))
+      save(temp, file = paste0("Data/FBData/TempC/", TimeStamp, "_MissingComments.RData"))
       
       n.c <- dim(out$comments)[1]
       upToDate <- min(as.Date(temp$created_time)) < minDate
@@ -167,7 +167,7 @@ myGetPost <- function(post, token, minDate, n=500, comments=TRUE, likes=(!reacti
                                    commentsDataToDF(content$data))
         
         temp <- out[["comments"]]
-        save(temp, file = paste0("Data/TempC/", TimeStamp, "_MissingFBComments.RData"))
+        save(temp, file = paste0("Data/FBData/TempC/", TimeStamp, "_MissingFBComments.RData"))
         
         n.c <- dim(out$comments)[1]
         upToDate <- min(as.Date(temp$created_time)) < minDate

@@ -18,10 +18,11 @@ library(Rfacebook)
 library(lubridate)
 library(openssl)
 
-source("./R Code/FBCode/FaceBookUtilityFuncs.R")
+source("./R Code/FBCode/FaceBookUtilities.R")
 
 
 
+set.seed(as.integer(Sys.time()))
 
 #########################################################################################
 ####################  Get the Comments downloaded so far  ###############################
@@ -44,9 +45,9 @@ FBPosts <- get_PolFeed(returnRes = "Feed")
 # and don't need comments to be downloaded yet
 # Also: get comments from posts that are 10 days or older
 startDate <- firstDay
-limitDate <- lastPostDay
-maxDate <- min(Sys.Date() - 2, lastDay)
-minDate <- Sys.Date() - 6 - 2
+limitDate <- lastPostDay + 1
+maxDate <- min(Sys.Date() - 1, lastDay)
+minDate <- Sys.Date() - 5 - 2
 
 useFN <- get_fileNum(sDir = "Data/FBData", fPattern = "FBComs", nPattern = "\\d+", decr = FALSE)
 if (useFN == 0L) useFN <- get_fileNum(sDir = "Data/FBData/ready4Sampling", fPattern = "FBComs", nPattern = "\\d+", decr = TRUE) + 1
@@ -60,8 +61,7 @@ if (useFN < maxFileNum) { # then we can do some comment collection:
   # split the df into ones with comments already downloaded, and ones not:
   comAvail <- filter(FBPosts, FileNum != useFN | CommentsAvail >= as.Date(dateCreated) + 11)
   
-  ComToDownload <- filter(FBPosts, FileNum == useFN, CommentsAvail < as.Date(dateCreated) + 11) %>% 
-    arrange(desc(comments_count))
+  ComToDownload <- filter(FBPosts, FileNum == useFN, CommentsAvail < as.Date(dateCreated) + 11) 
   
   noComments <- filter(ComToDownload, comments_count == 0) %>%
     mutate(CommentsAvail = as.Date("2019-12-31"), RepAvail = as.Date("2019-12-31"))
@@ -90,15 +90,36 @@ if (useFN < maxFileNum) { # then we can do some comment collection:
   maxComs <- nrow(StillToDownload)
   numComs <- maxComs - firstN + 1
   
-  perRound <- ceiling(numComs/7)
+  # Figure out how many tokens we have, so we can determine how many comments to download per round
+  d <- dir("Data/FBData/Tokens")
+  T <- length(d) # Number of tokens available
+  
+  # check which tokens are currently working
+  ERROR <- FALSE
+  useTokens <- NULL
+  for (i in 1:T) {
+    FBToken <- load_Token(i)
+    info <- tryCatch(getUsers("me", token = FBToken),
+                     error = function(e) {
+                       print(e)
+                       ERROR <- TRUE
+                     })
+    if (!ERROR) useTokens <- c(useTokens, i)
+    ERROR <- FALSE
+  }
+  
+  T <- length(useTokens)
+  
+  useTokens <- sample(useTokens, T)
+  perRound <- ceiling(numComs/T)
   
   # add the new comments
   newComs <- NULL
   totalComments <- 0
   
   Sys.sleep(900)
-  sink(file = "Data/FBData/logfile.txt", split = TRUE)
-  for (k in 7:1) {
+  sink(file = "Data/FBData/TempC/logfile.txt", split = TRUE)
+  for (k in useTokens) {
     # Decide which FB Token to use ...
     print("**********************************")
     print(paste0("Starting token ", k))
@@ -116,15 +137,16 @@ if (useFN < maxFileNum) { # then we can do some comment collection:
 
       pol <- StillToDownload$Politician[s]
       replyTo <- StillToDownload$user[s]
+      Lvl <- StillToDownload$Level[s]
       print(paste0("inside all_fb_comments, Politician, s is: ", pol, ", ", s))
       numComments <- StillToDownload$comments_count[s]
       totalComments <- totalComments + numComments
       
       if (numComments > 0) {
-        lastDay <- min(as.Date(StillToDownload$dateCreated[s]) + 11, maxDate)
+        untilDay <- min(as.Date(StillToDownload$dateCreated[s]) + 7, maxDate)
         res <- tryCatch(get_FBComments(StillToDownload$id[s], 
                                        sinceDate = StillToDownload$CommentsAvail[s],
-                                       untilDate = lastDay,
+                                       untilDate = untilDay,
                                        number = min(numComments + 10, maxNum),
                                        politician = pol, FBToken), 
                         error = function(e) {
@@ -140,22 +162,23 @@ if (useFN < maxFileNum) { # then we can do some comment collection:
         if (!(is_empty(res) || nrow(res) == 0)) {
           res$Politician <- pol
           res$replyToUser <- replyTo
+          res$Level <- Lvl + 1L
           newComs <- bind_FBdfs(newComs, res)
           StillToDownload$CommentsAvail[s] <- Sys.Date() - 2
         }
         
-        save(newComs, s, file = "Data/TempC/Comments.RData")
-        if (totalComments %% 10000 == 0L) Sys.sleep(600) else if (s %% 100 == 0L) Sys.sleep(120) else Sys.sleep(10)
+        save(newComs, s, file = "Data/FBData/TempC/Comments.RData")
+        if (totalComments %% 10000 == 0L) Sys.sleep(1200) else if (s %% 100 == 0L) Sys.sleep(300) else Sys.sleep(5)
       }
       
       
     }
-    newComs <- filter(newComs, !is.na(message), !(message %in% c("", " ")))  # get rid of empty messages
+    # newComs <- filter(newComs, !is.na(message), !(message %in% c("", " ")))  # don't get rid of empty messages -- might indicate deleted ones
     firstN <- endI + 1
     
     if (firstN > maxComs) break
     
-    if (k < 7) {
+    if (k != useTokens[T]) {
       print("Pause 10 mins before next token")
       Sys.sleep(600)
     }
@@ -171,14 +194,17 @@ if (useFN < maxFileNum) { # then we can do some comment collection:
   #### DON'T HASH THE COMMENT ID's!!!!! Wait until after sampling! #####
   comDF <- newComs %>%
     dplyr::rename(user = from_name, created = created_time, text = message) %>%
-    filter(!is.na(text), !(str_squish(text) %in% c("", " "))) %>%
-    clean_FBCommentsDF(polDF = polDF, morePols = morePols, Level = 1L) %>%
+#    filter(!is.na(text), !(str_squish(text) %in% c("", " "))) %>%
+    clean_FBCommentsDF(polDF = polDF, morePols = morePols, Level = NULL) %>%
     bind_FBdfs(dfOld = comDF) %>%
     unique()
   
   list2env(get_PolFeed(returnRes = "Status"), envir = environment())
   
   cleanedFBPosts <- bind_rows(StillToDownload, comAvail)
+  
+  cleanedFBPosts <- mutate(cleanedFBPosts, Deleted = ifelse(id %in% deletedPosts, TRUE, 
+                                                            ifelse(is.na(Deleted), FALSE, Deleted)))
   
   save_PolFeed(cleanedFBPosts, fName = "CleanedPolFeeds.RData", firstNum, sinceDate, untilDate, errorLog)
   
@@ -192,13 +218,13 @@ if (useFN < maxFileNum) { # then we can do some comment collection:
   
   save_Com(comDF, errorLogC, FN = useFN, allDone = allDownloaded)
   
-  comDFavail <- select(comDF, Politician, user, id, origPost, replyToID, dateCreated, comments_count) %>%
+  comDFavail <- select(comDF, Politician, user, id, origPost, replyToID, dateCreated, comments_count, Level) %>%
     mutate(repAvail = as.Date(dateCreated))
   
   update_ComAvail(comDFavail, FN = useFN)
   
   # If no errors occurred, clear the Temp Directory
-  if (is_empty(errorLogC)) clean_Directory("Data/TempC")
+  if (is_empty(errorLogC)) clean_Directory("Data/FBData/TempC")
   
 }
 

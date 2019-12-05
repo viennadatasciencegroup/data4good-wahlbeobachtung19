@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .vega-actions a {
+        margin-right: 12px;
+        color: #757575;
+        font-weight: normal;
+        font-size: 13px;
+    }
+    .error {
+        color: red;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@3.4.0"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@4"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"width": 400, "height": 300}, "mark": {"tooltip": null}}, "layer": [{"mark": "bar", "encoding": {"opacity": {"value": 0.75}, "tooltip": [{"type": "nominal", "field": "Topic", "title": "Topic"}, {"type": "quantitative", "field": "count", "title": "Posts"}, {"type": "quantitative", "field": "sum", "title": "Total interactions"}, {"type": "quantitative", "field": "mean", "title": "Mean interactions"}], "x": {"type": "nominal", "field": "topic", "title": "Topic"}, "y": {"type": "quantitative", "field": "sum", "scale": {"base": 10, "type": "log"}, "title": "Total interactions (log)"}}, "title": "Interactions per Topic"}, {"mark": {"type": "tick", "color": "red", "thickness": 2}, "encoding": {"color": {"type": "nominal", "field": "mean_label", "scale": {"domain": ["Mean interactions"], "range": ["red"]}, "title": "Legend"}, "opacity": {"value": 1}, "x": {"type": "nominal", "field": "topic", "title": "Topic"}, "y": {"type": "quantitative", "field": "mean", "scale": {"base": 10, "type": "log"}, "title": ""}}}], "data": {"name": "data-2ac605ec8a340a940a1bb7d943a11a42"}, "$schema": "https://vega.github.io/schema/vega-lite/v3.4.0.json", "datasets": {"data-2ac605ec8a340a940a1bb7d943a11a42": [{"topic": 1, "topic_interpretation": "-", "count": 937, "sum": 105285, "mean": 112.36, "Topic": "-", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 2, "topic_interpretation": "Wohnen", "count": 995, "sum": 144655, "mean": 145.38, "Topic": "Wohnen", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 3, "topic_interpretation": "Gr\u00fcne", "count": 1234, "sum": 176640, "mean": 143.14, "Topic": "Gr\u00fcne", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 4, "topic_interpretation": "Steuern / Geld", "count": 1435, "sum": 255748, "mean": 178.22, "Topic": "Steuern / Geld", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 5, "topic_interpretation": "\u00d6VP Mobilisierung", "count": 866, "sum": 132610, "mean": 153.13, "Topic": "\u00d6VP Mobilisierung", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 6, "topic_interpretation": "Parteien", "count": 1495, "sum": 217015, "mean": 145.16, "Topic": "Parteien", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 7, "topic_interpretation": "Prognosen", "count": 1196, "sum": 176082, "mean": 147.23, "Topic": "Prognosen", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 8, "topic_interpretation": "KP\u00d6 / Linke Forderungen", "count": 1045, "sum": 130028, "mean": 124.43, "Topic": "KP\u00d6 / Linke Forderungen", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 9, "topic_interpretation": "Dank / TV-Runde", "count": 1335, "sum": 196337, "mean": 147.07, "Topic": "Dank / TV-Runde", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 10, "topic_interpretation": "Links / Alternativ", "count": 1044, "sum": 148251, "mean": 142.0, "Topic": "Links / Alternativ", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 11, "topic_interpretation": "\u00d6VP", "count": 1824, "sum": 482425, "mean": 264.49, "Topic": "\u00d6VP", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 12, "topic_interpretation": "-", "count": 1135, "sum": 157714, "mean": 138.96, "Topic": "-", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 13, "topic_interpretation": "SP\u00d6", "count": 1564, "sum": 295396, "mean": 188.87, "Topic": "SP\u00d6", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 14, "topic_interpretation": "Volksparteien", "count": 822, "sum": 138625, "mean": 168.64, "Topic": "Volksparteien", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 15, "topic_interpretation": "-", "count": 1175, "sum": 227565, "mean": 193.67, "Topic": "-", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 16, "topic_interpretation": "FP\u00d6", "count": 1078, "sum": 261477, "mean": 242.56, "Topic": "FP\u00d6", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 17, "topic_interpretation": "-", "count": 864, "sum": 115372, "mean": 133.53, "Topic": "-", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 18, "topic_interpretation": "Wahlkampfslogans", "count": 1010, "sum": 183748, "mean": 181.93, "Topic": "Wahlkampfslogans", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 19, "topic_interpretation": "-", "count": 1062, "sum": 147963, "mean": 139.32, "Topic": "-", "bar_label": "Total interactions", "mean_label": "Mean interactions"}, {"topic": 20, "topic_interpretation": "Stenzel Rede bei IB", "count": 1268, "sum": 215937, "mean": 170.3, "Topic": "Stenzel Rede bei IB", "bar_label": "Total interactions", "mean_label": "Mean interactions"}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div class="error" style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
