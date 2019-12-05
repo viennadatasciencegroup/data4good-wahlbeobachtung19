@@ -98,11 +98,11 @@ insightsDataToDF <- function(x){
 myPostDataToDF <- function(json){
   df <- data.frame(
     from_id = ifelse(!is.null(json$from$id),json$from$id, NA),
-    from_name = ifelse(!is.null(json$from$name), json$from$name, NA),
+    # from_name = ifelse(!is.null(json$from$name), json$from$name, NA),   ### from_name is no longer allowed by FB ###
     message = ifelse(!is.null(json$message),json$message, NA),
     created_time = json$created_time,
-    type = json$type,
-    link = ifelse(!is.null(json$link), json$link, NA),
+    # type = json$type,
+    # link = ifelse(!is.null(json$link), json$link, NA),                  ### type and link are also deprecated
     id = json$id,
     likes_count = ifelse(!is.null(json$likes$summary$total_count),
                          json$likes$summary$total_count, 0),
@@ -309,11 +309,6 @@ unlistWithNA <- function(lst, field){
 searchPageDataToDF <- function(json){
   df <- data.frame(
     id = unlistWithNA(json, 'id'),
-    about = unlistWithNA(json, 'about'),
-    category = unlistWithNA(json, 'category'),
-    description = unlistWithNA(json, 'description'),
-    general_info = unlistWithNA(json, 'general_info'),
-    likes = unlistWithNA(json, 'likes'),
     link = unlistWithNA(json, 'link'),
     city = unlistWithNA(json, c('location', 'city')),
     state = unlistWithNA(json, c('location', 'state')),
@@ -321,9 +316,8 @@ searchPageDataToDF <- function(json){
     latitude = unlistWithNA(json, c('location', 'latitude')),
     longitude = unlistWithNA(json, c('location', 'longitude')),
     name = unlistWithNA(json, 'name'),
-    talking_about_count = unlistWithNA(json, 'talking_about_count'),
-    username = unlistWithNA(json, 'username'),
-    website = unlistWithNA(json, 'website'),
+    verified = unlistWithNA(json, 'verification_status'),
+    unclaimed = unlistWithNA(json, 'is_unclaimed'),
     stringsAsFactors=F)
   return(df)
 }
@@ -347,7 +341,6 @@ eventDataToDF <- function(json){
 
 
 callAPI <- function(url, token, api=NULL){
-  
   # disable http/2, it is causing problems!!!
   httr::set_config(httr::config(http_version = 0))
   # h <- curl::new_handle()

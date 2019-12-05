@@ -1,5 +1,5 @@
 
-# DATE: 22.03.2019
+# DATE: 23.09.2019
 # Facebook reply-to-comment collection
 # This has to be supervised, due to FB API rate limits, which are undocumented and unpredictable
 
@@ -17,10 +17,11 @@ library(Rfacebook)
 library(lubridate)
 library(openssl)
 
-source("./R Code/FBCode/FaceBookUtilityFuncs.R")
-source("./R Code/TwitterCode/TwitterUtilityFuncs.R")
+source("./R Code/FBCode/FaceBookUtilities.R")
+source("./R Code/TwitterCode/TwitterUtilities.R")
 
 
+set.seed(as.integer(Sys.time()))
 
 #########################################################################################
 ####################  Get the Comments downloaded so far  ###############################
@@ -29,16 +30,12 @@ source("./R Code/TwitterCode/TwitterUtilityFuncs.R")
 polDF <- get_AllPolDF("FB")
 
 # which politicians to follow?
-followPols <- update_usedPols(Site = "FB", maxPols = NULL)  # used to be 45 prior to FN 11
-availPols <- polDF$listName
-followPols <- intersect(followPols, availPols)
-
-
+followPols <- polDF$listName
 
 useFN <- get_fileNum(sDir = "Data/FBData", fPattern = "FBReps", nPattern = "\\d+", decr = FALSE)
 
-startDate <- as.Date("2019-04-15")
-minDate <- Sys.Date() - 10 - 5
+startDate <- firstDay
+minDate <- Sys.Date() - 7 - 2
 maxFileNum1 <- as.integer(minDate - startDate) %/% 3 + 1
 
 maxFileNum2 <- get_fileNum(sDir = "Data/FBData/ready4Sampling", fPattern = "FBComs", nPattern = "\\d+", decr = TRUE)
@@ -68,15 +65,14 @@ list2env(get_DownloadedReplies(FN = useFN), envir = environment())
 repAvail <- filter(comDFavail, !(Politician %in% followPols) | repAvail > as.Date(dateCreated) + 7)
   
 
-RepToDownload <- filter(comDFavail, Politician %in% followPols, repAvail < as.Date(dateCreated) + 8) %>% 
-  arrange(desc(comments_count))
+RepToDownload <- filter(comDFavail, Politician %in% followPols, repAvail < as.Date(dateCreated) + 8)
 
 
 StillToDownload <- NULL
 if (!is_empty(RepToDownload)) {
   
   noReplies <- filter(RepToDownload, comments_count == 0) %>%
-    mutate(repAvail = as.Date("2019-12-31"))
+    mutate(repAvail = as.Date("2020-12-31"))
   
   repAvail <- bind_rows(repAvail, noReplies)
   
@@ -86,7 +82,7 @@ if (!is_empty(RepToDownload)) {
 if (is_empty(StillToDownload)) l <- 0 else l <- nrow(StillToDownload)
 
 if (nrow(repAvail) + l == nrow(comDFavail)) {
-  save(repAvail, file = "Data/TempR/availableReplies.RData")
+  save(repAvail, file = "Data/FBData/TempR/availableReplies.RData")
   rm(RepToDownload, repAvail, noReplies, comDFavail)
 }
 
@@ -105,23 +101,49 @@ firstNR <- 1
 maxComs <- l
 
 # Or get some at a time:
-firstNR <- 16800
+firstNR <- 2000
 maxComs <- l
 
 
 numComs <- maxComs - firstNR + 1
-perRound <- ceiling(numComs/7)
+
+# Figure out how many tokens we have, so we can determine how many comments to download per round
+d <- dir("Data/FBData/Tokens")
+T <- length(d) # Number of tokens available
+
+# check which tokens are currently working
+ERROR <- FALSE
+useTokens <- NULL
+for (i in 1:T) {
+  FBToken <- load_Token(i)
+  info <- tryCatch(getUsers("me", token = FBToken),
+                   error = function(e) {
+                     print(e)
+                     ERROR <- TRUE
+                   })
+  if (!ERROR) useTokens <- c(useTokens, i)
+  ERROR <- FALSE
+}
+
+T <- length(useTokens)
+
+useTokens <- sample(useTokens, T)
+perRound <- ceiling(numComs/T)
+
+# useTokens <- c(useTokens, useTokens)
+# perRound <- ceiling(numComs/(2*T))
+
 
 
 # keep a log of messages
-sink(file = "Data/TempR/logFile.txt", split = TRUE)  
+sink(file = "Data/FBData/TempR/logFile.txt", split = TRUE)  
 
 comReps <- NULL
 
 totalComments <- 0
 
 
-for (k in 1:7) {
+for (k in useTokens) {
   # Decide which FB Token to use ...
   FBToken <- load_Token(k)
   
@@ -149,10 +171,7 @@ for (k in 1:7) {
                                     untilDate = as.Date(out$dateCreated) + 7),   
                       error = function(e) {
                         msg <- as.character(simpleError(e))
-                        errID <- out$id
-                        pol <- out$Poltician
-                        errorInfo <- list(Pol = pol, id = errID, Msg = msg, Time = Sys.time())
-                        errorLogR[[errID]] <<- errorInfo
+                        print(msg)
                         return(NULL)
                       })
       if (!is_empty(res)) {
@@ -160,25 +179,25 @@ for (k in 1:7) {
         StillToDownload$repAvail[i] <- Sys.Date()
         
         if (i %% 10 == 0L) {
-          save(comReps, file = "Data/TempR/Replies.RData")
-          Sys.sleep(5)
+          save(comReps, file = "Data/FBData/TempR/Replies.RData")
+          Sys.sleep(10)
         }
       } 
       
       # Take a break!
       if (i %% 100 == 0) {
-        if (i %% 1000 == 0) {
+        if (i %% 500 == 0) {
           totalComments <- 0
-          save(comReps, file = "Data/TempR/Replies2.RData")
+          save(comReps, file = "Data/FBData/TempR/Replies2.RData")
           print("taking a few minutes break")
-          Sys.sleep(600)
+          Sys.sleep(300)
         } else {
-          Sys.sleep(45)
+          Sys.sleep(120)
         }
-      } else if (totalComments > 5000) {
+      } else if (totalComments > 2000) {
         totalComments <- 0
-        save(comReps, file = "Data/TempR/Replies2.RData")
-        Sys.sleep(400)
+        save(comReps, file = "Data/FBData/TempR/Replies2.RData")
+        Sys.sleep(600)
       }
     }
     
@@ -190,17 +209,21 @@ for (k in 1:7) {
   if (!is.null(comReps)) {
     comReps <- filter(comReps, !(text %in% c("", " "))) %>%  # get rid of empty messages
       replace_na(list(comments_count = 0))
-    save(comReps, file = "Data/TempR/Replies2.RData")
+    save(comReps, file = "Data/FBData/TempR/Replies2.RData")
   }
   
   firstNR <- endI + 1
   if (firstNR > maxComs) break
   
-  print("waiting 10 minutes before loading next token")
-  Sys.sleep(600)
+  print("waiting 20 minutes before loading next token")
+  Sys.sleep(900)
 }
 
 sink()
+
+# if all the errors are of type "Unsupported get request", we can get rid of the errorLogR
+errors <- bind_rows(errorLogR)
+if (all(str_detect(errors$Msg, "Unsupported get request"))) errorLogR <- list()
 
 
 #### DON'T HASH THE COMMENT ID's!!!!! Wait until after sampling! #####
@@ -209,7 +232,7 @@ repDF <- comReps %>%
   bind_FBdfs(dfOld = repDF) %>%
   unique()
 
-load("Data/TempR/availableReplies.RData")
+load("Data/FBData/TempR/availableReplies.RData")
 comDFavail <- bind_rows(StillToDownload, repAvail)
 
 ### Update firstNR, and save:
@@ -218,16 +241,13 @@ if (firstNR > nrow(StillToDownload)) {
   allDownloaded <- TRUE
 }
 
-# if all the errors are of type "Unsupported get request", we can get rid of the errorLogR
-errors <- bind_rows(errorLogR)
-if (all(str_detect(errors$Msg, "Unsupported get request"))) errorLogR <- list()
 
 
 save_Rep(comDFavail, repDF, errorLogR, allDone = allDownloaded, FN = useFN)
 
 
 # If no errors occurred, clear the Temp Directory
-if (is_empty(errorLogR)) clean_Directory("Data/TempR")
+if (is_empty(errorLogR)) clean_Directory("Data/FBData/TempR")
 
 }
 
