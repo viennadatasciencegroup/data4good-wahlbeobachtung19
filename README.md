@@ -62,20 +62,17 @@ Project Organization
     └── src                <- Source code for use in this project.
         ├── __init__.py    <- Makes src a Python module.
         │
-        ├── data           <- Scripts to download, collect, persist or generate data.
-        │   ├── scrape_ad_lib.py	<- Scrape ads data from Ad Lib API.
-        │   └── FBCode				<- Collect data from FB.
+        ├── analytics           <- Scripts to perform result oriented text analytics. 
         │
         ├── comment_evaluation  <- Shiny R script for comment evaluation app.
         │
-        ├── nlp            <- Scripts to clean and preprocess raw text data (NLP pipeline).
-        │   ├── preprocessing.py	<- Preprocessing dev script.
-        │   └── spacy_tokenizer.py	<- Spacy-based text tokenizers.
+        ├── data           <- Scripts to download, collect, persist or generate data.
         │
-        ├── topics         <- Scripts to perform topic modeling.
-        │   └── topic_modeling.py	<- Topic modeling and topic assignment.
+        ├── nlp            <- Scripts to clean and preprocess raw text data (NLP pipeline).
         │
         ├── sentiment      <- Scripts to perform sentiment analysis.
+        │
+        ├── topics         <- Scripts to perform topic modeling.
         │
         ├── visualization  <- Scripts to create exploratory and results oriented visualizations.
         │
