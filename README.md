@@ -8,7 +8,7 @@ Monitor and analyze Social Media campaigns of major political actors during nati
 
 ### Description
 
-For the Austrian parliamentary elections held on September 29, 2019, data4good teamed up with [wahlbeobachtung.org](https://www.wahlbeobachtung.org/) to monitor the public social media profiles of the political candidates, leading influencers, and the major Austrian Press. Public Twitter and Facebook profiles were monitored from September 8 until October 4. During this period, over 26000 politicians’ posts, and 1.1 million generic user comments were collected. Here is the code of statistical, sentiment and topic analysis of the data.
+For the Austrian parliamentary elections held on September 29, 2019, data4good teamed up with [wahlbeobachtung.org](https://www.wahlbeobachtung.org/) to monitor the public social media profiles of the political candidates, leading influencers, and the major Austrian Press. Public Twitter and Facebook profiles were monitored from September 8 until October 4. During this period, over 26000 politicians posts, and 1.1 million generic user comments were collected. Here is the code of statistical, sentiment and topic analysis of the data.
 
 Results are visualized and published in this [App](https://rania.shinyapps.io/exploreTrends/). 
 
