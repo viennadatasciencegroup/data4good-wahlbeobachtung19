@@ -505,8 +505,6 @@ FBhash_id <- function(v, name, polDF = NULL, otherPols = NULL) {
   foundPols <- c(polDF$Name, polDF$polHandles, polDF$listName, otherPols)
   searchPols <- str_to_lower(foundPols)
   
-  set.seed(secretSeed)
-  rnum <- as.raw(sample(100, 1))
   newV <- ifelse(str_to_lower(name) %in% searchPols, v, sha256(x = v, key = rnum))
   
   return(newV)
@@ -517,8 +515,6 @@ FBhash_id <- function(v, name, polDF = NULL, otherPols = NULL) {
 FBhash_origPost <- function(v, Level) {
   if (is_empty(v) || all(is.na(v)) || all(v == "")) return(NA)
 
-  set.seed(secretSeed)
-  rnum <- as.raw(sample(100, 1))
   newV <- ifelse(Level < 10L, v, sha256(x = v, key = rnum))
   
   return(newV)
