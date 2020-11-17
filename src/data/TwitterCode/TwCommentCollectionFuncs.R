@@ -40,8 +40,6 @@ hash_id <- function(v, name, polDF = NULL, otherPols = NULL) {
   foundPols <- c(polDF$polHandles, otherPols)
   searchPols <- str_to_lower(foundPols)
   
-  set.seed(secretSeed)
-  rnum <- as.raw(sample(100, 1))
   newV <- ifelse(str_to_lower(name) %in% searchPols, v, sha256(x = v, key = rnum))
   
   return(newV)
